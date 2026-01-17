@@ -136,6 +136,63 @@ aside > ul {
     100% { transform: rotate(360deg); }
 }
 
+
+.nav-logo {
+    margin-right: auto; /* Odpycha resztę ikon na prawo, jeśli chcesz logo po lewej */
+    padding-left: 20px;
+}
+
+.main-logo {
+    height: 120px;  /* To jest kluczowa wartość - ustaw tyle, ile chcesz */
+    width: auto;    /* Nie ustawiaj szerokości na sztywno, bo spłaszczysz byka! */
+    display: block;
+    object-fit: contain;
+}
+
+.main-nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; /* Logo na lewo, ikony na prawo */
+    align-items: center;
+    background-color: #1a1a1a; /* Zmień gray na coś poważniejszego */
+    padding: 0 2rem;
+    height: 80px; /* Sztywna wysokość navbara */
+    padding-top : 2rem;
+    padding-bottom : 2rem;
+}
+
+.main-nav ul {
+    display: flex;
+    
+    flex-direction: row;
+}
+
+.main-nav ul li {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    padding : 1rem;
+    border: 1px solid white;
+    color: white;
+
+}
+
+.main-nav ul li a {
+    text-decoration: none;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.main-nav ul li:hover {
+    background-color: darkgray;
+    transform: scale(1.1);
+}
+
 .portfolio-table {
     width: 100%;
     border-collapse: collapse;

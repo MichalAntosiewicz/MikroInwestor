@@ -10,20 +10,35 @@
     <script src="public/scripts/timer.js" defer></script>
 
     <link href="public/styles/main.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="public/img/favicon.png">
     <link href="public/styles/dashboard.css" rel="stylesheet">
     <script src="public/scripts/menu.js" defer></script>
 
     <title>DASHBOARD</title>
 </head>
 <body>
-    <nav class="flex-row-center-center">
+    <nav class="main-nav">
+        <div class="nav-logo">
+            <img src="public/img/logo.png" alt="MikroInwestor Logo" class="main-logo">
+        </div>
         <ul class="desktop-icons">
             <li>
-                <a href="dashboard"><i class="fa-solid fa-house"></i> <span>HOME</span></a>
+                <a href="dashboard"><i class="fa-solid fa-house"></i> <span>DASHBOARD</span></a>
+            </li>
+            <li>
+                <a href = "portfolio.html"><i class="fa-solid fa-wallet"></i> <span>PORTFEL</span></a>
             </li>
             <li>
                 <a href="market"><i class="fa-solid fa-chart-line"></i> <span>RYNEK</span></a>
             </li>
+            <li>
+                <a href = "history.html"><i class = "fa-solid fa-history"></i> <span>HISTORIA</span></a>
+            </li>
+            <li>
+                <a href="settings"><i class="fa-solid fa-gear"></i> <span>USTAWIENIA</span></a>
+            </li>
+            
+            
         </ul>
         <ul class="mobile-icons">
             <li id="hamburger-menu">
