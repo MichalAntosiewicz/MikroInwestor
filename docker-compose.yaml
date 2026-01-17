@@ -1,50 +1,45 @@
-version: '3'
+version: '3.8'
 
 services:
   web:
     build:
       context: .
       dockerfile: docker/nginx/Dockerfile
+    container_name: mikroinwestor_web
     ports:
       - "8080:80"
     volumes:
-      - .:/app/
-    links:
+      - .:/app
+    depends_on:
       - php
-    networks:
-      - pg-network
-  
+
   db:
     build:
       context: .
       dockerfile: docker/db/Dockerfile
+    container_name: mikroinwestor_db
+    environment:
+      POSTGRES_DB: mikroinwestor_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
     ports:
-      - "5433:5432"
-    networks:
-      - pg-network
-  
+      - "5435:5432"
+    volumes:
+      - mikro-db-data:/var/lib/postgresql/data
+      - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
   php:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
+    container_name: mikroinwestor_php
     volumes:
       - .:/app
-    networks:
-      - pg-network
-  
-  pgadmin-wdpai:
-    image: dpage/pgadmin4:latest
-    container_name: pg-admin2
+    depends_on:
+      - db
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "5050:80"
-    networks:
-      - pg-network
-  
-networks:
-  pg-network:
+      - FINNHUB_API_KEY=${FINNHUB_API_KEY}
 
 volumes:
-  pg-data:
+  mikro-db-data:

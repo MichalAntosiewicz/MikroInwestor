@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
+    <link href="public/styles/main.css" rel="stylesheet">
+    <link href="public/styles/dashboard.css" rel="stylesheet">
+    <title>TWÓJ PORTFEL</title>
+</head>
+<body>
+    <nav class="flex-row-center-center">
+        <ul class="desktop-icons">
+            <li><a href="dashboard"><i class="fa-solid fa-house"></i> <span>HOME</span></a></li>
+            <li><a href="market"><i class="fa-solid fa-chart-line"></i> <span>RYNEK</span></a></li>
+        </ul>
+    </nav>
+    <main>
+        <section class="portfolio-section">
+            <header class="portfolio-header">
+                <h1>Twój Portfel</h1>
+                <div class="total-balance">
+                    <span>Całkowita wartość:</span>
+                    <strong>$<?= number_format($total_value ?? 0, 2) ?></strong>
+                </div>
+            </header>
+
+            <table class="portfolio-table">
+                <thead>
+                    <tr>
+                        <th>Aktywo</th>
+                        <th>Ilość</th>
+                        <th>Średnia Cena</th>
+                        <th>Wartość</th>
+                        <th>Zysk/Strata</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if(isset($user_assets) && !empty($user_assets)): ?>
+                        <?php foreach($user_assets as $item): ?>
+                            <tr>
+                                <td><strong><?= $item['symbol'] ?></strong></td>
+                                <td><?= $item['amount'] ?></td>
+                                <td>$<?= number_format($item['avg_buy_price'], 2) ?></td>
+                                <td>$<?= number_format($item['current_value'], 2) ?></td>
+                                <td class="<?= $item['profit_loss'] >= 0 ? 'positive' : 'negative' ?>">
+                                    <?= $item['profit_loss'] >= 0 ? '+' : '' ?><?= number_format($item['profit_loss'], 2) ?>%
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2em;">Twój portfel jest jeszcze pusty. Kup coś na rynku!</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </section>
+        
+        <aside>
+            <h1>Opcje Portfela</h1>
+            <ul>
+                <li><a href="history">📋 Historia transakcji</a></li>
+                <li><a href="market">📈 Kup więcej</a></li>
+                <li><a href="dashboard">🏠 Powrót do Home</a></li>
+            </ul>
+        </aside>
+    </main>
+</body>
+</html>

@@ -7,10 +7,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
+    <script src="public/scripts/timer.js" defer></script>
 
-    <link href="../styles/main.css" rel="stylesheet">
-    <link href="../styles/dashboard.css" rel="stylesheet">
-    <script src="../scripts/menu.js" defer></script>
+    <link href="public/styles/main.css" rel="stylesheet">
+    <link href="public/styles/dashboard.css" rel="stylesheet">
+    <script src="public/scripts/menu.js" defer></script>
 
     <title>DASHBOARD</title>
 </head>
@@ -18,12 +19,10 @@
     <nav class="flex-row-center-center">
         <ul class="desktop-icons">
             <li>
-                <i class="fa-solid fa-house"></i>
-                <span>HOME</span>
+                <a href="dashboard"><i class="fa-solid fa-house"></i> <span>HOME</span></a>
             </li>
             <li>
-                <i class="fa-solid fa-pizza-slice"></i>
-                <span>OFERTA</span>
+                <a href="market"><i class="fa-solid fa-chart-line"></i> <span>RYNEK</span></a>
             </li>
         </ul>
         <ul class="mobile-icons">
@@ -35,33 +34,34 @@
     </nav>
     <main>
         <section>
-            <div class="card">
-                <img src="https://random.imagecdn.app/500/500">
-                <p class="flex-column-center-center">CARD 1</p>
-            </div>
-            <div class="card">
-                <img src="https://random.imagecdn.app/500/500">
-                <p class="flex-column-center-center">CARD 1</p>
-            </div>
-            <div class="card">
-                <img src="https://random.imagecdn.app/500/500">
-                <p class="flex-column-center-center">CARD 1</p>
-            </div>
-            <div class="card">
-                <img src="https://random.imagecdn.app/500/500">
-                <p class="flex-column-center-center">CARD 1</p>
-            </div>
+            <?php if(isset($assets)): ?>
+                <?php foreach($assets as $asset): ?>
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                            <strong><?= $asset['symbol'] ?></strong>
+                        </div>
+                        <p class="price">$<?= number_format($asset['price'], 2) ?></p>
+                        <p class="change <?= $asset['change'] >= 0 ? 'positive' : 'negative' ?>">
+                            <?= $asset['change'] >= 0 ? '+' : '' ?><?= $asset['change'] ?>
+                        </p>
+                        <button class="buy-btn">KUP</button>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            <div class="refresh-timer">
+            Aktualizacja za: <span id="timer"><?= $refresh_in ?? 60 ?></span>s
+            <i class="fa-solid fa-sync-alt" id="refresh-icon"></i>
+        </div>
         </section>
         <aside>
-            <h1>Panel Zamówień</h1>
+            <h1>Panel Inwestora</h1>
             <ul>
-                <li><a href="#">📋 Przegląd zamówień</a></li>
-                <li><a href="#">🍕 Nowe zamówienie</a></li>
-                <li><a href="#">🚀 W trakcie realizacji</a></li>
-                <li><a href="#">✅ Zrealizowane</a></li>
-                <li><a href="#">👤 Klienci</a></li>
-                <li><a href="#">📊 Statystyki</a></li>
-                <li><a href="#">⚙️ Ustawienia</a></li>
+                <li><a href="history">📋 Historia transakcji</a></li>
+                <li><a href="market">📈 Kup aktywa</a></li>
+                <li><a href="portfolio">💰 Twój portfel</a></li>
+                <li><a href="settings">⚙️ Ustawienia konta</a></li>
+                <li><a href="login">❌ Wyloguj</a></li>
             </ul>
         </aside>
     </main>

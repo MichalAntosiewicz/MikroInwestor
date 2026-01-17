@@ -1,7 +1,3 @@
-FROM postgres
+FROM postgres:15-alpine
 
-ENV POSTGRES_PASSWORD docker
-ENV POSTGRES_DB db
-ENV POSTGRES_USER docker
-
-COPY . /app/database
+# Nie wpisujemy tu ENV, żeby nie robić konfliktów z docker-compose

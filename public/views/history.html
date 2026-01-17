@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
+    <link href="public/styles/main.css" rel="stylesheet">
+    <link href="public/styles/dashboard.css" rel="stylesheet">
+    <title>HISTORIA TRANSAKCJI</title>
+</head>
+<body>
+    <nav class="flex-row-center-center">
+        <ul class="desktop-icons">
+            <li><a href="dashboard"><i class="fa-solid fa-house"></i> <span>HOME</span></a></li>
+            <li><a href="market"><i class="fa-solid fa-chart-line"></i> <span>RYNEK</span></a></li>
+            <li><a href="portfolio"><i class="fa-solid fa-wallet"></i> <span>PORTFEL</span></a></li>
+        </ul>
+    </nav>
+    <main>
+        <section class="portfolio-section">
+            <header class="portfolio-header">
+                <h1>Historia Transakcji</h1>
+            </header>
+
+            <table class="portfolio-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Aktywo</th>
+                        <th>Typ</th>
+                        <th>Ilość</th>
+                        <th>Cena jedn.</th>
+                        <th>Suma</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if(isset($history) && !empty($history)): ?>
+                        <?php foreach($history as $transaction): ?>
+                            <tr>
+                                <td><?= $transaction['created_at'] ?></td>
+                                <td><strong><?= $transaction['symbol'] ?></strong></td>
+                                <td>
+                                    <span class="badge <?= strtolower($transaction['type']) ?>">
+                                        <?= $transaction['type'] == 'BUY' ? 'KUPNO' : 'SPRZEDAŻ' ?>
+                                    </span>
+                                </td>
+                                <td><?= $transaction['amount'] ?></td>
+                                <td>$<?= number_format($transaction['price'], 2) ?></td>
+                                <td>$<?= number_format($transaction['amount'] * $transaction['price'], 2) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2em;">Brak historii transakcji. Czas na pierwsze zakupy!</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </section>
+        
+        <aside>
+            <h1>Skróty</h1>
+            <ul>
+                <li><a href="portfolio">💰 Zobacz portfel</a></li>
+                <li><a href="market">📈 Rynek</a></li>
+                <li><a href="dashboard">🏠 Pulpit</a></li>
+            </ul>
+        </aside>
+    </main>
+</body>
+</html>

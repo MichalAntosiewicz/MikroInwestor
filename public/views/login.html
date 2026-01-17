@@ -8,27 +8,46 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
 
-    <link href="../styles/main.css" rel="stylesheet">
+    <link href="public/styles/main.css" rel="stylesheet">
 
     <title>LOGIN</title>
+    <style>
+        body{
+            background-color: #f0f2f5;
+            display : flex;
+            flex-direction : column;
+        }
+    </style>
 </head>
 <body id="login-page" class="flex-row-center-center">
     
     <div class="flex-column-center-center">
         <h1>LOGIN</h1>
-        <form class="login-form flex-column-center-center">
+        <form class="login-form flex-column-center-center" action="login" method="POST">
+            
+            <div class="messages">
+                <?php if(isset($messages)): ?>
+                    <?php foreach($messages as $message): ?>
+                        <p class="message" style="color: #ff4d4d; font-size: 0.8rem; margin-bottom: 10px;">
+                            <?= $message; ?>
+                        </p>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+            
             <div class="email">
-                <input type="email" placeholder="email">
+                <input name="email" type="email" placeholder="email" required>
                 <i class="fa-solid fa-at flex-column-center-center"></i>
             </div>
             <div class="password">
-                <input type="password" placeholder="password">
+                <input name="password" type="password" placeholder="password" required>
                 <i class="fa-solid fa-key flex-column-center-center"></i>
             </div>
             <button type="submit"><i class="fa-solid fa-right-to-bracket"></i> SIGN IN</button>
+            <p style = 'float : left'>Don't have an account? <a href = 'register'>Register</a></p>
         </form>
-
     </div>
+    
 
 </body>
 </html>

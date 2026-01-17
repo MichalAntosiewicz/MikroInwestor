@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
+    <link href="public/styles/main.css" rel="stylesheet">
+    <link href="public/styles/login.css" rel="stylesheet">
+    <title>REGISTER</title>
+</head>
+<body id="login-page" class="flex-row-center-center">
+    <div class="flex-column-center-center">
+        <h1>REGISTER</h1>
+        <form class="login-form flex-column-center-center" action="register" method="POST">
+            <div class="input-container">
+                <input name="email" type="email" placeholder="email" required>
+                <i class="fa-solid fa-at"></i>
+                <p> cos </p>
+            </div>
+            <div class="input-container">
+                <input name="username" type="text" placeholder="username" required>
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="input-container">
+                <input name="password" type="password" placeholder="password" required>
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <button type="submit"><i class="fa-solid fa-user-plus"></i> CREATE ACCOUNT</button>
+        </form>
+    </div>
+</body>
+</html>

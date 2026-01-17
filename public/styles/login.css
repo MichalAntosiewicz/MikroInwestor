@@ -1,0 +1,24 @@
+.input-container {
+    position: relative; /* To jest kotwica dla ikonki */
+    width: 100%;
+    margin-bottom: 15px; /* Odstęp między polami */
+    color : black;
+}
+
+.input-container > input {
+    width: 100%;
+    padding: 0.8em 3em 0.8em 1em; /* Zwiększony prawy padding, żeby tekst nie zachodził na ikonkę */
+    font-size: 1.2rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Ważne: padding nie powiększa szerokości inputa */
+}
+
+.input-container > i {
+    position: absolute;
+    right: 1rem; /* Odległość od prawej krawędzi */
+    top: 50%;    /* Przesuń o 50% wysokości kontenera w dół */
+    transform: translateY(-50%); /* Cofnij o połowę własnej wysokości, żeby było idealnie w centrum */
+    color: #888;
+    pointer-events: none; /* Kliknięcie w ikonkę "przelatuje" do inputa */
+}
