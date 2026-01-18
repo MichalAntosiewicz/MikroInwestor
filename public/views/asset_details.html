@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="public/styles/main.css" rel="stylesheet">
+    <link href="public/styles/dashboard.css" rel="stylesheet">
+    <link href="public/styles/navbar.css" rel="stylesheet">
+    <title><?= $symbol ?> | Szczegóły</title>
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-logo">
+            <img src="public/img/logo.png" alt="Logo" class="main-logo">
+        </div>
+        <ul class="desktop-icons">
+            <li><a href="dashboard"><i class="fa-solid fa-house"></i> <span>STRONA GŁÓWNA</span></a></li>
+            <li><a href="portfolio"><i class="fa-solid fa-wallet"></i> <span>PORTFEL</span></a></li>
+            <li><a href="market"><i class="fa-solid fa-chart-line"></i> <span>RYNEK</span></a></li>
+            <li><a href="history"><i class="fa-solid fa-history"></i> <span>HISTORIA</span></a></li>
+            <li><a href="settings"><i class="fa-solid fa-gear"></i> <span>USTAWIENIA</span></a></li>
+            <li><a href="logout"><i class="fa-solid fa-right-from-bracket"></i> <span>WYLOGUJ</span></a></li>
+
+            <li class="balance-item">
+                <i class="fa-solid fa-coins" style="color: #00d2ff;"></i>
+                <span style="font-weight: bold; color: #00d2ff; margin-left: 5px;">
+                    <?= number_format($balance ?? 151401, 2, ',', ' ') ?> PLN
+                </span>
+            </li>
+        </ul>
+    </nav>
+
+    <main style="flex-direction: column; align-items: center; gap: 20px;">
+        <div class="card" style="width: 100%; max-width: 800px; padding: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div>
+                    <h1 style="margin: 0; font-size: 2.5rem;"><?= $symbol ?></h1>
+                    <p style="color: #888; margin: 5px 0;">Cena rynkowa: <strong style="color: #00ff88;">$<?= number_format($price, 2) ?></strong></p>
+                </div>
+                <div style="text-align: right;">
+                    <p style="margin: 0; color: #888;">Posiadasz:</p>
+                    <p style="margin: 0; font-size: 1.5rem; font-weight: bold; color: #00d2ff;"><?= (float)$owned_amount ?> szt.</p>
+                </div>
+            </div>
+
+            <div style="height: 300px; width: 100%; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 30px;">
+                <canvas id="assetChart"></canvas>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <a href="trade?symbol=<?= $symbol ?>&type=BUY" class="btn-trade buy" style="text-align: center; padding: 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.2rem;">KUP</a>
+                
+                <a href="trade?symbol=<?= $symbol ?>&type=SELL" 
+                   class="btn-trade sell <?= $owned_amount <= 0 ? 'disabled' : '' ?>" 
+                   style="text-align: center; padding: 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">
+                   SPRZEDAJ
+                </a>
+            </div>
+
+            <div class="chart-controls" style="display: flex; gap: 10px; margin-bottom: 15px; margin-top : 30px;">
+                <button onclick="updatePeriod('1D', this)" class="period-btn">1D</button>
+                <button onclick="updatePeriod('1W', this)" class="period-btn">1W</button>
+                <button onclick="updatePeriod('1M', this)" class="period-btn active">1M</button>
+                <button onclick="updatePeriod('3M', this)" class="period-btn">3M</button>
+                <button onclick="updatePeriod('6M', this)" class="period-btn">6M</button>
+                <button onclick="updatePeriod('1Y', this)" class="period-btn">1Y</button>
+                <button onclick="updatePeriod('5Y', this)" class="period-btn">5Y</button>
+            </div>
+            <div class="chart-disclaimer" style="margin-top: 10px; font-size: 0.8rem; color: #666; display: flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Dane historyczne mają charakter wyłącznie poglądowy i są generowane symulacyjnie.</span>
+            </div>
+            <div style="height: 300px; width: 100%; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 30px;">
+                <canvas id="assetChart"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let assetChart;
+        const ctx = document.getElementById('assetChart').getContext('2d');
+
+        // Dodaliśmy parametr "element", aby ręcznie wskazać przycisk do podświetlenia
+        async function updatePeriod(period, element = null) {
+            
+            // 1. Obsługa wizualna przycisków
+            // Sprawdzamy czy wywołanie przyszło z kliknięcia (event) czy z parametru (element)
+            const targetBtn = element || (event ? event.currentTarget : null);
+
+            if (targetBtn) {
+                document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
+                targetBtn.classList.add('active');
+            }
+
+            try {
+                // 2. Pobieranie danych z PHP
+                const response = await fetch(`assetData?symbol=<?= $symbol ?>&period=${period}`);
+                const chartData = await response.json();
+
+                if (assetChart) {
+                    assetChart.destroy();
+                }
+
+                // 3. Konfiguracja wykresu
+                assetChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: [{
+                            data: chartData.values,
+                            borderColor: '#00d2ff',
+                            backgroundColor: 'rgba(0, 210, 255, 0.05)',
+                            fill: true,
+                            tension: period === '5Y' ? 0.1 : 0.4,
+                            borderWidth: 2,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(20, 20, 20, 0.9)',
+                                titleColor: '#00d2ff',
+                                callbacks: {
+                                    label: function(context) {
+                                        return ' Cena: $' + context.parsed.y.toFixed(2);
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                grace: '10%',
+                                grid: { color: 'rgba(255,255,255,0.05)' },
+                                ticks: { 
+                                    color: '#888',
+                                    callback: function(value) { return '$' + value.toFixed(0); }
+                                }
+                            },
+                            x: {
+                                display: true,
+                                grid: { display: false },
+                                ticks: { 
+                                    color: '#888',
+                                    autoSkip: true,
+                                    maxTicksLimit: 10
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Błąd ładowania danych wykresu:", error);
+            }
+        }
+
+        // AUTOMATYCZNE ŁADOWANIE
+        document.addEventListener('DOMContentLoaded', () => {
+            // Szukamy przycisku 1D, żeby go podświetlić na start
+            const defaultBtn = document.querySelector('.period-btn'); // pierwszy przycisk (1D)
+            updatePeriod('1D', defaultBtn);
+        });
+    </script>
+</body>
+</html>

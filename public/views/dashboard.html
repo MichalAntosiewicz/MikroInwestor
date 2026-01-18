@@ -24,6 +24,7 @@
             <li><a href="market"><i class="fa-solid fa-chart-line"></i> <span>RYNEK</span></a></li>
             <li><a href="history"><i class="fa-solid fa-history"></i> <span>HISTORIA</span></a></li>
             <li><a href="settings"><i class="fa-solid fa-gear"></i> <span>USTAWIENIA</span></a></li>
+            <li><a href="logout"><i class="fa-solid fa-right-from-bracket"></i> <span>WYLOGUJ</span></a></li>
 
             <li class="balance-item">
                 <i class="fa-solid fa-coins" style="color: #00d2ff;"></i>
@@ -34,10 +35,11 @@
         </ul>
     </nav>
     <main>
-        <section>
-            <?php if(isset($assets)): ?>
-                <?php foreach($assets as $asset): ?>
-                    <div class="card">
+    <section>
+        <?php if(isset($assets)): ?>
+            <?php foreach($assets as $asset): ?>
+                <div class="card">
+                    <div onclick="location.href='asset?symbol=<?= $asset['symbol'] ?>'" style="cursor: pointer;">
                         <div class="card-header">
                             <i class="fa-solid fa-arrow-trend-up"></i>
                             <strong><?= $asset['symbol'] ?></strong>
@@ -46,45 +48,47 @@
                         <p class="change <?= $asset['change'] >= 0 ? 'positive' : 'negative' ?>">
                             <?= $asset['change'] >= 0 ? '+' : '' ?><?= $asset['change'] ?>%
                         </p>
+                    </div>
 
-                        <div class="trade-buttons">
-                           <a href="trade?symbol=<?= $asset['symbol'] ?>&type=BUY" class="btn-trade buy">KUP</a>
-                            <?php 
-                                $userHasAsset = false;
-                                if(isset($user_assets)) {
-                                    foreach($user_assets as $ua) {
-                                        // Zmieniono z asset_symbol na symbol
-                                        if($ua['symbol'] == $asset['symbol'] && $ua['amount'] > 0) {
-                                            $userHasAsset = true;
-                                            break;
-                                        }
+                    <div class="trade-buttons">
+                        <a href="trade?symbol=<?= $asset['symbol'] ?>&type=BUY" class="btn-trade buy">KUP</a>
+                        
+                        <?php 
+                            $userHasAsset = false;
+                            if(isset($user_assets)) {
+                                foreach($user_assets as $ua) {
+                                    if($ua['symbol'] == $asset['symbol'] && $ua['amount'] > 0) {
+                                        $userHasAsset = true;
+                                        break;
                                     }
                                 }
-                            ?>
-                            
-                            <a href="trade?symbol=<?= $asset['symbol'] ?>&type=SELL" 
-                            class="btn-trade sell <?= !$userHasAsset ? 'disabled' : '' ?>">
-                            SPRZEDAJ
-                            </a>
-                        </div>
+                            }
+                        ?>
+                        
+                        <a href="trade?symbol=<?= $asset['symbol'] ?>&type=SELL" 
+                           class="btn-trade sell <?= !$userHasAsset ? 'disabled' : '' ?>">
+                           SPRZEDAJ
+                        </a>
                     </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </section>
-        <aside>
-            <div class="refresh-timer">
-                Aktualizacja: <span id="timer"><?= $refresh_in ?? 60 ?></span>s
-                <i class="fa-solid fa-sync-alt" id="refresh-icon"></i>
-            </div>
-            <h1>Panel Inwestora</h1>
-            <ul>
-                <li><a href="history.html">📋 Historia transakcji</a></li>
-                <li><a href="market">📈 Kup aktywa</a></li>
-                <li><a href="portfolio.html">💰 Twój portfel</a></li>
-                <li><a href="settings">⚙️ Ustawienia konta</a></li>
-                <li><a href="login">❌ Wyloguj</a></li>
-            </ul>
-        </aside>
-    </main>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </section>
+
+    <aside>
+        <div class="refresh-timer">
+            Aktualizacja: <span id="timer"><?= $refresh_in ?? 60 ?></span>s
+            <i class="fa-solid fa-sync-alt" id="refresh-icon"></i>
+        </div>
+        <h1>Panel Inwestora</h1>
+        <ul>
+            <li><a href="history"><i class="fa-solid fa-receipt"></i> Historia transakcji</a></li>
+            <li><a href="market"><i class="fa-solid fa-chart-line"></i> Kup aktywa</a></li>
+            <li><a href="portfolio"><i class="fa-solid fa-wallet"></i> Twój portfel</a></li>
+            <li><a href="settings"><i class="fa-solid fa-gear"></i> Ustawienia konta</a></li>
+            <li><a href="login"><i class="fa-solid fa-right-from-bracket"></i> Wyloguj</a></li>
+        </ul>
+    </aside>
+</main>
 </body>
 </html>

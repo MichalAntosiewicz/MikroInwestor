@@ -284,4 +284,121 @@ class ProjectController extends AppController {
         }
         return 0;
     }
+
+    public function asset() {
+        $symbol = $_GET['symbol'] ?? null;
+        if (!$symbol) {
+            header("Location: dashboard");
+            return;
+        }
+
+        $user = $this->userRepository->getUser($_SESSION['user_id']);
+        
+        // Pobieramy aktualną cenę z cache
+        $currentPrice = $this->getCurrentPrice($symbol);
+        
+        // Symulacja danych historycznych dla wykresu (7 punktów)
+        $historyData = [
+            $currentPrice * 0.95, $currentPrice * 0.98, $currentPrice * 0.97, 
+            $currentPrice * 1.02, $currentPrice * 0.99, $currentPrice * 1.01, $currentPrice
+        ];
+
+        require_once __DIR__.'/../repository/PortfolioRepository.php';
+        $portfolioRepo = new PortfolioRepository();
+        $userPortfolio = $portfolioRepo->getUserPortfolio($user->getId());
+
+        $ownedAmount = 0;
+        foreach ($userPortfolio as $item) {
+            if ($item['symbol'] === $symbol) {
+                $ownedAmount = (float)$item['amount'];
+                break;
+            }
+        }
+
+        $this->render('asset_details', [
+            'symbol' => $symbol,
+            'price' => $currentPrice,
+            'balance' => $user->getBalance(),
+            'owned_amount' => $ownedAmount,
+            'history_data' => json_encode($historyData) // Przekazujemy do JS
+        ]);
+    }
+    public function assetData() {
+        $symbol = $_GET['symbol'] ?? 'AAPL';
+        $period = $_GET['period'] ?? '1M';
+
+        // 1. Ustalamy liczbę punktów
+        $points = match($period) {
+            '1D' => 24,
+            '1W' => 7,
+            '1M' => 30,
+            '3M' => 90,
+            '1Y' => 250,
+            '5Y' => 500,
+            default => 30
+        };
+
+        $currentPrice = $this->getCurrentPrice($symbol);
+        if ($currentPrice <= 0) $currentPrice = 150.00; 
+
+        $values = [];
+        $labels = [];
+        $tempPrice = $currentPrice;
+
+        // 2. Generujemy dane
+        for ($i = 0; $i < $points; $i++) {
+            // Poprawka: $period === '1D' odejmuje godziny, reszta dni
+            $timestamp = ($period === '1D') ? strtotime("-$i hours") : strtotime("-$i days");
+            
+            // 3. Formatowanie daty (Poprawiona logika if/else)
+            if ($period === '1D') {
+                $labels[] = date('H:i', $timestamp);
+            } elseif ($period === '5Y' || $period === '1Y') {
+                $labels[] = date('m.Y', $timestamp);
+            } else {
+                $labels[] = date('d.m', $timestamp);
+            }
+
+            $values[] = round($tempPrice, 2);
+
+            // Algorytm błądzenia losowego
+            $change = $tempPrice * (rand(-200, 200) / 10000);
+            $tempPrice -= $change; 
+        }
+
+        // 4. Wysyłka JSON
+        header('Content-Type: application/json');
+        echo json_encode([
+            'labels' => array_reverse($labels),
+            'values' => array_reverse($values)
+        ]);
+        exit();
+    }
+
+    public function logout() {
+        // Rozpoczynamy sesję, jeśli nie jest aktywna
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Czyścimy tablicę sesji
+        $_SESSION = array();
+
+        // Jeśli używasz ciasteczek sesyjnych, usuwamy je
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
+
+        // Całkowite zniszczenie sesji
+        session_destroy();
+
+        // Przekierowanie do logowania
+        header("Location: login");
+        exit();
+    }
 }
+

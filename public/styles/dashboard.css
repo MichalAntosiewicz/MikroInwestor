@@ -103,3 +103,25 @@ aside {
     color: #ff4444;
     border: 1px solid #ff4444;
 }
+
+.period-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #888;
+    padding: 5px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: bold;
+}
+
+.period-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+
+.period-btn.active {
+    background: #00d2ff;
+    color: #000;
+    border-color: #00d2ff;
+}

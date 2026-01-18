@@ -15,11 +15,15 @@ Routing::post('login', 'SecurityController');
 Routing::get('register', 'SecurityController');
 Routing::post('register', 'SecurityController');
 
+
 // Funkcje Aplikacji (ProjectController)
 Routing::get('dashboard', 'ProjectController');
 Routing::get('market', 'ProjectController');
 Routing::get('history', 'ProjectController');
 Routing::get('portfolio', 'ProjectController');
+Routing::get('asset', 'ProjectController');
+Routing::get('assetData', 'ProjectController');
+Routing::get('logout', 'ProjectController');
 
 Routing::get('trade', 'ProjectController');      // Wyświetla stronę trade.html
 Routing::post('executeTrade', 'ProjectController'); // Obsługuje przycisk "Potwierdź"

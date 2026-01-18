@@ -42,4 +42,38 @@ class MarketService {
 
         return $results;
     }
+
+    public function getHistory($symbol, $period) {
+        // Używamy $this->apiKey zamiast nieistniejącego $apiKey
+        $token = $this->apiKey; 
+        
+        $to = time();
+        $from = match($period) {
+            '1W' => strtotime("-1 week"),
+            '1M' => strtotime("-1 month"),
+            '3M' => strtotime("-3 month"),
+            '1Y' => strtotime("-1 year"),
+            '5Y' => strtotime("-5 years"),
+            default => strtotime("-1 month")
+        };
+
+        $resolution = ($period === '5Y') ? 'W' : 'D';
+
+        // Budujemy poprawny URL
+        $url = "https://finnhub.io/api/v1/stock/candle?symbol=$symbol&resolution=$resolution&from=$from&to=$to&token=$token";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Dodaj to dla bezpieczeństwa połączenia
+        $response = curl_exec($ch);
+        
+        if(curl_errno($ch)) {
+            error_log('Finnhub Error: ' . curl_error($ch));
+        }
+        
+        curl_close($ch);
+
+        return json_decode($response, true);
+    }
 }
