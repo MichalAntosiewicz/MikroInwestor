@@ -2,107 +2,286 @@
 
 require_once 'AppController.php';
 require_once __DIR__.'/../services/MarketService.php';
+require_once __DIR__.'/../repository/UserRepository.php';
+require_once __DIR__.'/../repository/TradeRepository.php';
 
 class ProjectController extends AppController {
 
-    public function dashboard() {
-        $currentTime = time();
-    $cacheDuration = 60; // 60 sekund
+    private $userRepository;
 
-    // Sprawdzamy, czy mamy świeże dane w sesji
-    if (isset($_SESSION['assets_cache']) && 
-        ($currentTime - $_SESSION['assets_timestamp'] < $cacheDuration)) {
-        $assets = $_SESSION['assets_cache'];
-    } else {
-        // Jeśli nie ma lub stare - pobieramy z API
-        $marketService = new MarketService();
-        $assets = $marketService->getMarketData();
-
-        // Zapisujemy w cache'u
-        $_SESSION['assets_cache'] = $assets;
-        $_SESSION['assets_timestamp'] = $currentTime;
+    public function __construct() {
+        parent::__construct();
+        // Inicjalizujemy repozytorium, aby nie było nullem
+        $this->userRepository = new UserRepository();
     }
 
-    // Obliczamy ile sekund zostało do następnego odświeżenia
-    $secondsLeft = $cacheDuration - ($currentTime - ($_SESSION['assets_timestamp'] ?? $currentTime));
+    public function dashboard() {
+        if (!isset($_SESSION['user_id'])) {
+            $this->render('login');
+            return;
+        }
 
-    $this->render('dashboard', [
-        'assets' => $assets,
-        'refresh_in' => $secondsLeft
-    ]);
+        $userId = $_SESSION['user_id'];
+        $currentTime = time();
+        $cacheDuration = 60;
+
+        // Pobieranie danych rynkowych (Logic Cache)
+        if (isset($_SESSION['assets_cache']) && (time() - $_SESSION['assets_timestamp'] < $cacheDuration)) {
+            $assets = $_SESSION['assets_cache'];
+        } else {
+            $marketService = new MarketService();
+            $assets = $marketService->getMarketData();
+            $_SESSION['assets_cache'] = $assets;
+            $_SESSION['assets_timestamp'] = $currentTime;
+        }
+
+        $secondsLeft = $cacheDuration - ($currentTime - ($_SESSION['assets_timestamp'] ?? $currentTime));
+        
+        // Pobieranie prawdziwego salda z bazy
+        $user = $this->userRepository->getUser($_SESSION['user_id']);
+        $balance = $user ? $user->getBalance() : 0;
+
+        $marketService = new MarketService();
+        $assets = $_SESSION['assets_cache'] ?? $marketService->getMarketData();
+
+        // 2. Pobieramy portfel użytkownika, aby wiedzieć co może sprzedać
+        require_once __DIR__.'/../repository/PortfolioRepository.php';
+        $portfolioRepo = new PortfolioRepository();
+        $userPortfolio = $portfolioRepo->getUserPortfolio($user->getId());
+
+        $this->render('dashboard', [
+            'assets' => $assets,
+            'refresh_in' => $secondsLeft,
+            'balance' => $user->getBalance(),
+            'user_assets' => $userPortfolio,
+        ]);
     }
 
     public function market() {
-    $currentTime = time();
-    $cacheDuration = 60;
+        if (!isset($_SESSION['user_id'])) {
+            $this->render('login');
+            return;
+        }
 
-    if (isset($_SESSION['assets_cache']) && ($currentTime - $_SESSION['assets_timestamp'] < $cacheDuration)) {
-        $assets = $_SESSION['assets_cache'];
-    } else {
-        $marketService = new MarketService();
-        $assets = $marketService->getMarketData();
-        $_SESSION['assets_cache'] = $assets;
-        $_SESSION['assets_timestamp'] = $currentTime;
+        $currentTime = time();
+        $cacheDuration = 60;
+
+        if (isset($_SESSION['assets_cache']) && ($currentTime - $_SESSION['assets_timestamp'] < $cacheDuration)) {
+            $assets = $_SESSION['assets_cache'];
+        } else {
+            $marketService = new MarketService();
+            $assets = $marketService->getMarketData();
+            $_SESSION['assets_cache'] = $assets;
+            $_SESSION['assets_timestamp'] = $currentTime;
+        }
+
+        $secondsLeft = $cacheDuration - ($currentTime - $_SESSION['assets_timestamp']);
+
+        // POPRAWKA: getUser zamiast getUserById (linia 72)
+        $user = $this->userRepository->getUser($_SESSION['user_id']);
+        $balance = $user ? $user->getBalance() : 0;
+
+        $this->render('market', [
+            'assets' => $assets,
+            'refresh_in' => $secondsLeft,
+            'balance' => $balance
+        ]);
     }
 
-    $secondsLeft = $cacheDuration - ($currentTime - $_SESSION['assets_timestamp']);
-
-    $this->render('market', [
-        'assets' => $assets,
-        'refresh_in' => $secondsLeft
-    ]);
-}
-
     public function history() {
-    $test_history = [
-        [
-            'created_at' => '2025-01-15 14:30',
-            'symbol' => 'AAPL',
-            'type' => 'BUY',
-            'amount' => 2,
-            'price' => 175.50
-        ],
-        [
-            'created_at' => '2025-01-14 10:15',
-            'symbol' => 'BTC',
-            'type' => 'BUY',
-            'amount' => 0.01,
-            'price' => 42000.00
-        ],
-        [
-            'created_at' => '2025-01-12 18:45',
-            'symbol' => 'TSLA',
-            'type' => 'SELL',
-            'amount' => 10,
-            'price' => 210.00
-        ]
-    ];
+        if (!isset($_SESSION['user_id'])) {
+            $this->render('login');
+            return;
+        }
 
-    $this->render('history', ['history' => $test_history]);
-}
+        $user = $this->userRepository->getUser($_SESSION['user_id']);
+        
+        require_once __DIR__.'/../repository/TradeRepository.php';
+        $tradeRepo = new TradeRepository();
+        
+        // Pobieramy historię z bazy danych
+        $history = $tradeRepo->getUserHistory($user->getId());
+
+        $this->render('history', [
+            'history' => $history,
+            'balance' => $user->getBalance()
+        ]);
+    }
 
     public function portfolio() {
-    // Na potrzeby prezentacji "na pokaz"
-        $test_assets = [
-            [
-                'symbol' => 'AAPL',
-                'amount' => 5,
-                'avg_buy_price' => 170.00,
-                'current_value' => 926.50,
-                'profit_loss' => 8.5
-            ],
-            [
-                'symbol' => 'BTC',
-                'amount' => 0.02,
-                'avg_buy_price' => 40000.00,
-                'current_value' => 850.00,
-                'profit_loss' => -2.4
-            ]
-        ];
+        if (!isset($_SESSION['user_id'])) {
+            $this->render('login');
+            return;
+        }
+
+        $user = $this->userRepository->getUser($_SESSION['user_id']);
+        require_once __DIR__.'/../repository/PortfolioRepository.php';
+        $portfolioRepo = new PortfolioRepository();
+        $raw_assets = $portfolioRepo->getUserPortfolio($user->getId());
+
+        // Pobieramy aktualne ceny z serwisu rynkowego
+        $marketService = new MarketService();
+        $marketData = $_SESSION['assets_cache'] ?? $marketService->getMarketData();
+
+        $user_assets = [];
+        $total_portfolio_value = 0;
+
+        foreach ($raw_assets as $asset) {
+            $symbol = $asset['symbol'];
+            $amount = (float)$asset['amount'];
+            $avgPrice = (float)$asset['avg_buy_price'];
+
+            // Znajdź aktualną cenę rynkową dla tego symbolu
+            $currentMarketPrice = 0;
+            foreach ($marketData as $m) {
+                if ($m['symbol'] === $symbol) {
+                    $currentMarketPrice = (float)$m['price'];
+                    break;
+                }
+            }
+
+            $currentValue = $amount * $currentMarketPrice;
+            $total_portfolio_value += $currentValue;
+
+            // Oblicz zysk/stratę w %
+            $profitLoss = ($avgPrice > 0) ? (($currentMarketPrice - $avgPrice) / $avgPrice) * 100 : 0;
+
+            $user_assets[] = [
+                'symbol' => $symbol,
+                'amount' => $amount,
+                'avg_buy_price' => $avgPrice,
+                'current_value' => $currentValue,
+                'profit_loss' => $profitLoss
+            ];
+        }
 
         $this->render('portfolio', [
-            'user_assets' => $test_assets,
-            'total_value' => 1776.50
+            'user_assets' => $user_assets,
+            'total_value' => $total_portfolio_value,
+            'balance' => $user->getBalance()
         ]);
+    }
+
+    public function trade() {
+        unset($_SESSION['error']);
+        unset($_SESSION['message']);
+        // Pobieramy dane z tablicy $_GET (bo są w adresie URL)
+        $symbol = $_GET['symbol'] ?? null;
+        $type = $_GET['type'] ?? 'BUY';
+
+        if (!$symbol) {
+            header("Location: dashboard");
+            return;
+        }
+
+        // Pobieramy aktualną cenę dla tego symbolu z cache sesji
+        $price = 0;
+        if (isset($_SESSION['assets_cache'])) {
+            foreach ($_SESSION['assets_cache'] as $asset) {
+                if ($asset['symbol'] === $symbol) {
+                    $price = $asset['price'];
+                    break;
+                }
+            }
+        }
+
+        $user = $this->userRepository->getUser($_SESSION['user_id']);
+        $balance = $user ? $user->getBalance() : 0;
+
+        require_once __DIR__.'/../repository/PortfolioRepository.php';
+        $portfolioRepo = new PortfolioRepository();
+        $userPortfolio = $portfolioRepo->getUserPortfolio($user->getId());
+
+        $ownedAmount = 0;
+        foreach ($userPortfolio as $item) {
+            if ($item['symbol'] === $symbol) {
+                $ownedAmount = (float)$item['amount'];
+                break;
+            }
+        }
+
+        // Renderujemy widok trade.html
+        $this->render('trade', [
+            'symbol' => $symbol,
+            'type' => $type,
+            'price' => $price,
+            'balance' => $balance,
+            'owned_amount' => $ownedAmount
+        ]);
+    }
+
+    public function executeTrade() {
+        if (!$this->isPost()) {
+            header("Location: dashboard");
+            return;
+        }
+
+        $user = $this->userRepository->getUser($_SESSION['user_id']);
+        $type = $_POST['type'];
+        $symbol = $_POST['symbol'];
+        $amount = (float)$_POST['amount'];
+        $price = (float)$_POST['price'];
+        $totalCost = $amount * $price;
+
+        // Walidacja środków dla zakupu
+        if ($type === 'BUY' && $totalCost > $user->getBalance()) {
+            $_SESSION['error'] = "Niewystarczające środki na koncie! Brakuje: $" . number_format($totalCost - $user->getBalance(), 2);
+            header("Location: trade?symbol=$symbol&type=BUY");
+            exit();
+        }
+
+        if ($type === 'SELL') {
+            // 1. Pobieramy portfel, żeby sprawdzić stan posiadania
+            require_once __DIR__.'/../repository/PortfolioRepository.php';
+            $portfolioRepo = new PortfolioRepository();
+            $userPortfolio = $portfolioRepo->getUserPortfolio($user->getId());
+
+            $ownedAmount = 0;
+            foreach ($userPortfolio as $item) {
+                if ($item['symbol'] === $symbol) {
+                    $ownedAmount = (float)$item['amount'];
+                    break;
+                }
+            }
+
+            // 2. Sprawdzamy, czy użytkownik nie chce sprzedać więcej niż ma
+            if ($amount > $ownedAmount) {
+                $_SESSION['error'] = "Nie masz wystarczającej ilości akcji! Posiadasz: $ownedAmount";
+                header("Location: trade?symbol=$symbol&type=SELL");
+                exit();
+            }
+        }
+
+        if ($amount <= 0) {
+            $_SESSION['error'] = "Ilość musi być większa niż zero!";
+            header("Location: trade?symbol=$symbol&type=$type");
+            exit();
+        }
+
+        require_once __DIR__.'/../repository/TradeRepository.php';
+        $tradeRepo = new TradeRepository();
+        
+        $success = ($type === 'BUY') 
+            ? $tradeRepo->buy($user->getId(), $symbol, $amount, $price)
+            : $tradeRepo->sell($user->getId(), $symbol, $amount, $price);
+
+        if ($success) {
+            $_SESSION['message'] = "Transakcja zakończona pomyślnie!";
+            header("Location: portfolio");
+        } else {
+            $_SESSION['error'] = "Wystąpił błąd podczas przetwarzania transakcji.";
+            header("Location: market");
+        }
+        exit();
+    }
+
+    private function getCurrentPrice(string $symbol): float
+    {
+        foreach ($_SESSION['assets_cache'] ?? [] as $asset) {
+            if ($asset['symbol'] === $symbol) {
+                return $asset['price'];
+            }
+        }
+        return 0;
     }
 }

@@ -3,40 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
     <link href="public/styles/main.css" rel="stylesheet">
     <link href="public/styles/dashboard.css" rel="stylesheet">
+    <link href="public/styles/navbar.css" rel="stylesheet">
     <script src="public/scripts/timer.js" defer></script>
     <title>RYNEK AKTYWÓW</title>
 </head>
 <body>
-    <nav class="flex-row-center-center">
-        <ul class="desktop-icons">
-            <li><a href="dashboard"><i class="fa-solid fa-house"></i> <span>HOME</span></a></li>
-            <li><a href="portfolio"><i class="fa-solid fa-wallet"></i> <span>PORTFEL</span></a></li>
-        </ul>
-        <div class="refresh-timer" style="margin: 0 20px; color: white;">
-            Aktualizacja za: <span id="timer"><?= $refresh_in ?? 60 ?></span>s
+    <nav class="main-nav">
+        <div class="nav-logo">
+            <img src="public/img/logo.png" alt="Logo" class="main-logo">
         </div>
+        <ul class="desktop-icons">
+            <li><a href="dashboard"><i class="fa-solid fa-house"></i> <span>STRONA GŁÓWNA</span></a></li>
+            <li><a href="portfolio"><i class="fa-solid fa-wallet"></i> <span>PORTFEL</span></a></li>
+            <li><a href="market"><i class="fa-solid fa-chart-line"></i> <span>RYNEK</span></a></li>
+            <li><a href="history"><i class="fa-solid fa-history"></i> <span>HISTORIA</span></a></li>
+            <li><a href="settings"><i class="fa-solid fa-gear"></i> <span>USTAWIENIA</span></a></li>
+
+            <li class="balance-item">
+                <i class="fa-solid fa-coins" style="color: #00d2ff;"></i>
+                <span style="font-weight: bold; color: #00d2ff; margin-left: 5px;">
+                    <?= number_format($balance ?? 151401, 2, ',', ' ') ?> PLN
+                </span>
+            </li>
+        </ul>
     </nav>
     <main>
         <section class="portfolio-section">
             <header class="portfolio-header">
                 <h1>Rynek Akcji i Krypto</h1>
-                <div class="search-bar">
-                    <input type="text" placeholder="Szukaj symbolu...">
+                <div class="refresh-timer" style="color: gray; font-size: 0.9rem;">
+                    Aktualizacja za: <span id="timer"><?= $refresh_in ?? 60 ?></span>s
                 </div>
             </header>
 
-            <table class="portfolio-table">
+            <table class="portfolio-table card">
                 <thead>
                     <tr>
                         <th>Symbol</th>
                         <th>Cena (USD)</th>
                         <th>Zmiana 24h</th>
-                        <th>Akcja</th>
+                        <th>Handel</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,12 +56,13 @@
                                 <td><strong><?= $asset['symbol'] ?></strong></td>
                                 <td>$<?= number_format($asset['price'], 2) ?></td>
                                 <td class="<?= $asset['change'] >= 0 ? 'positive' : 'negative' ?>">
-                                    <?= $asset['change'] >= 0 ? '+' : '' ?><?= number_format($asset['change'], 2) ?>
+                                    <?= $asset['change'] >= 0 ? '+' : '' ?><?= number_format($asset['change'], 2) ?>%
                                 </td>
                                 <td>
-                                    <button class="buy-btn-small" onclick="buyAsset('<?= $asset['symbol'] ?>', <?= $asset['price'] ?>)">
-                                        <i class="fa-solid fa-cart-plus"></i> KUP
-                                    </button>
+                                    <div class="market-actions">
+                                        <a href="trade?symbol=<?= $asset['symbol'] ?>&type=BUY" class="btn-buy-small">KUP</a>
+                                        <a href="trade?symbol=<?= $asset['symbol'] ?>&type=SELL" class="btn-sell-small">SPRZEDAJ</a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -60,10 +71,10 @@
             </table>
         </section>
         
-        <aside>
+        <aside class="card">
             <h1>Informacje</h1>
-            <p style="padding: 10px; font-size: 0.8rem; color: gray;">
-                Dane dostarczane przez Finnhub API. Ceny akcji mogą być opóźnione o 15 minut.
+            <p style="padding: 10px; font-size: 0.8rem; color: #bbb;">
+                Wybierz aktywo, aby przejść do panelu transakcyjnego. Ceny są aktualizowane dynamicznie.
             </p>
             <ul>
                 <li><a href="portfolio">💰 Twój portfel</a></li>

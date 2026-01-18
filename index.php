@@ -21,4 +21,7 @@ Routing::get('market', 'ProjectController');
 Routing::get('history', 'ProjectController');
 Routing::get('portfolio', 'ProjectController');
 
+Routing::get('trade', 'ProjectController');      // Wyświetla stronę trade.html
+Routing::post('executeTrade', 'ProjectController'); // Obsługuje przycisk "Potwierdź"
+
 Routing::run($path);

@@ -3,47 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
     <script src="public/scripts/timer.js" defer></script>
+    <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
 
     <link href="public/styles/main.css" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="public/img/favicon.png">
     <link href="public/styles/dashboard.css" rel="stylesheet">
-    <script src="public/scripts/menu.js" defer></script>
-
+    <link href="public/styles/navbar.css" rel="stylesheet">
     <title>DASHBOARD</title>
 </head>
 <body>
     <nav class="main-nav">
         <div class="nav-logo">
-            <img src="public/img/logo.png" alt="MikroInwestor Logo" class="main-logo">
+            <img src="public/img/logo.png" alt="Logo" class="main-logo">
         </div>
         <ul class="desktop-icons">
-            <li>
-                <a href="dashboard"><i class="fa-solid fa-house"></i> <span>DASHBOARD</span></a>
-            </li>
-            <li>
-                <a href = "portfolio.html"><i class="fa-solid fa-wallet"></i> <span>PORTFEL</span></a>
-            </li>
-            <li>
-                <a href="market"><i class="fa-solid fa-chart-line"></i> <span>RYNEK</span></a>
-            </li>
-            <li>
-                <a href = "history.html"><i class = "fa-solid fa-history"></i> <span>HISTORIA</span></a>
-            </li>
-            <li>
-                <a href="settings"><i class="fa-solid fa-gear"></i> <span>USTAWIENIA</span></a>
-            </li>
-            
-            
-        </ul>
-        <ul class="mobile-icons">
-            <li id="hamburger-menu">
-                <i class="fa-solid fa-bars"></i>
-                <span>MENU</span>
+            <li><a href="dashboard"><i class="fa-solid fa-house"></i> <span>STRONA GŁÓWNA</span></a></li>
+            <li><a href="portfolio"><i class="fa-solid fa-wallet"></i> <span>PORTFEL</span></a></li>
+            <li><a href="market"><i class="fa-solid fa-chart-line"></i> <span>RYNEK</span></a></li>
+            <li><a href="history"><i class="fa-solid fa-history"></i> <span>HISTORIA</span></a></li>
+            <li><a href="settings"><i class="fa-solid fa-gear"></i> <span>USTAWIENIA</span></a></li>
+
+            <li class="balance-item">
+                <i class="fa-solid fa-coins" style="color: #00d2ff;"></i>
+                <span style="font-weight: bold; color: #00d2ff; margin-left: 5px;">
+                    <?= number_format($balance ?? 151401, 2, ',', ' ') ?> PLN
+                </span>
             </li>
         </ul>
     </nav>
@@ -58,23 +44,43 @@
                         </div>
                         <p class="price">$<?= number_format($asset['price'], 2) ?></p>
                         <p class="change <?= $asset['change'] >= 0 ? 'positive' : 'negative' ?>">
-                            <?= $asset['change'] >= 0 ? '+' : '' ?><?= $asset['change'] ?>
+                            <?= $asset['change'] >= 0 ? '+' : '' ?><?= $asset['change'] ?>%
                         </p>
-                        <button class="buy-btn">KUP</button>
+
+                        <div class="trade-buttons">
+                           <a href="trade?symbol=<?= $asset['symbol'] ?>&type=BUY" class="btn-trade buy">KUP</a>
+                            <?php 
+                                $userHasAsset = false;
+                                if(isset($user_assets)) {
+                                    foreach($user_assets as $ua) {
+                                        // Zmieniono z asset_symbol na symbol
+                                        if($ua['symbol'] == $asset['symbol'] && $ua['amount'] > 0) {
+                                            $userHasAsset = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            ?>
+                            
+                            <a href="trade?symbol=<?= $asset['symbol'] ?>&type=SELL" 
+                            class="btn-trade sell <?= !$userHasAsset ? 'disabled' : '' ?>">
+                            SPRZEDAJ
+                            </a>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
-            <div class="refresh-timer">
-            Aktualizacja za: <span id="timer"><?= $refresh_in ?? 60 ?></span>s
-            <i class="fa-solid fa-sync-alt" id="refresh-icon"></i>
-        </div>
         </section>
         <aside>
+            <div class="refresh-timer">
+                Aktualizacja: <span id="timer"><?= $refresh_in ?? 60 ?></span>s
+                <i class="fa-solid fa-sync-alt" id="refresh-icon"></i>
+            </div>
             <h1>Panel Inwestora</h1>
             <ul>
-                <li><a href="history">📋 Historia transakcji</a></li>
+                <li><a href="history.html">📋 Historia transakcji</a></li>
                 <li><a href="market">📈 Kup aktywa</a></li>
-                <li><a href="portfolio">💰 Twój portfel</a></li>
+                <li><a href="portfolio.html">💰 Twój portfel</a></li>
                 <li><a href="settings">⚙️ Ustawienia konta</a></li>
                 <li><a href="login">❌ Wyloguj</a></li>
             </ul>

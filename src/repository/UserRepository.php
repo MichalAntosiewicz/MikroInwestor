@@ -7,6 +7,27 @@ use src\models\User;
 
 class UserRepository extends Repository {
 
+    public function getUserById(int $id): ?User {
+        $stmt = $this->database->getConnection()->prepare('
+            SELECT * FROM public.users WHERE id = :id
+        ');
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user == false) {
+            return null;
+        }
+
+        return new User(
+            $user['email'],
+            $user['password'],
+            $user['username'],
+            (float)($user['balance'] ?? 0) // Pobieramy saldo i rzutujemy na float
+        );
+    }
+
     public function getUser(string $email): ?User {
         $stmt = $this->database->getConnection()->prepare('
             SELECT * FROM public.users WHERE email = :email
@@ -16,16 +37,14 @@ class UserRepository extends Repository {
 
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Jeśli nie znaleźliśmy gościa w bazie
-        if ($user == false) {
-            return null;
-        }
+        if (!$user) return null;
 
-        // Zwracamy obiekt modelu User, żeby kontroler miał na czym pracować
         return new User(
             $user['email'],
             $user['password'],
-            $user['username']
+            $user['username'],
+            (float)$user['balance'],
+            (int)$user['id'] // Przekazujemy ID do konstruktora
         );
     }
 
