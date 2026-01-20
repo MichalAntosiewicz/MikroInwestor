@@ -137,23 +137,15 @@ class TradeRepository extends Repository {
         }
     }
 
-    public function getUserHistory(int $userId): array
-    {
-        // Używamy połączenia z klasy nadrzędnej Repository
-        $stmt = $this->database->getConnection()->prepare("
-            SELECT 
-                t.created_at, 
-                a.symbol, 
-                t.type, 
-                t.amount, 
-                t.price_per_unit as price
-            FROM public.transactions t
-            JOIN public.assets a ON t.asset_id = a.id
-            WHERE t.user_id = :user_id
+    public function getUserHistory(int $userId): array {
+        $stmt = $this->database->getConnection()->prepare('
+            SELECT t.type, t.amount, t.price_per_unit, t.created_at, a.symbol
+            FROM transactions t
+            JOIN assets a ON t.asset_id = a.id
+            WHERE t.user_id = :id
             ORDER BY t.created_at DESC
-        ");
-
-        $stmt->execute(['user_id' => $userId]);
+        ');
+        $stmt->execute(['id' => $userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

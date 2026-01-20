@@ -1,4 +1,7 @@
-/* Kontener tabeli */
+/* =========================================
+   KONTENER I STRUKTURA TABELI
+   ========================================= */
+
 .table-container {
     width: 100%;
     margin-top: 30px;
@@ -16,12 +19,12 @@
 }
 
 /* Nagłówek tabeli */
-.custom-table certain-head tr {
+.custom-table thead tr {
     background: rgba(0, 210, 255, 0.05);
 }
 
 .custom-table th {
-    padding: 25px 20px; /* Duży odstęp w nagłówku */
+    padding: 25px 20px; /* Twój duży odstęp */
     text-align: left;
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -30,9 +33,12 @@
     border-bottom: 2px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Wiersze tabeli */
+/* =========================================
+   WIERSZE I KOMÓRKI
+   ========================================= */
+
 .custom-table td {
-    padding: 22px 20px; /* Zwiększony odstęp między wierszami */
+    padding: 22px 20px; /* Twój zwiększony odstęp */
     vertical-align: middle;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease;
@@ -42,13 +48,17 @@
     border-bottom: none;
 }
 
-/* Efekt najechania */
+/* Efekt najechania - Twoja subtelna animacja */
 .custom-table tbody tr:hover {
     background: rgba(255, 255, 255, 0.02);
     transform: scale(1.002);
 }
 
-/* Komórki specjalne */
+/* =========================================
+   ELEMENTY WEWNĄTRZ TABELI
+   ========================================= */
+
+/* Tagi symboli (np. AAPL, BTC) */
 .symbol-tag {
     display: flex;
     align-items: center;
@@ -60,15 +70,58 @@
     color: #00d2ff;
 }
 
+/* Pigułki statusu (Zysk / Strata / Typ transakcji) */
 .status-pill {
-    padding: 6px 12px;
+    padding: 8px 14px;
     border-radius: 8px;
     font-size: 0.8rem;
     font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
-/* Responsywność */
+/* Kolorystyka zysków i strat */
+.status-pill.positive {
+    background: rgba(0, 255, 136, 0.1);
+    color: #00ff88;
+}
+
+.status-pill.negative {
+    background: rgba(255, 68, 68, 0.1);
+    color: #ff4444;
+}
+
+/* Box informacyjny portfela (nad tabelą) */
+.portfolio-info-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 210, 255, 0.05);
+    padding: 25px 35px;
+    border-radius: 15px;
+    border: 1px solid rgba(0, 210, 255, 0.1);
+}
+
+/* =========================================
+   RESPONSYWNOŚĆ
+   ========================================= */
+
+@media (max-width: 900px) {
+    .portfolio-info-box {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        text-align: left;
+    }
+}
+
 @media (max-width: 768px) {
+    /* Ukrywamy kolumny: Śr. Cena Zakupu i ROI na małych ekranach */
     .custom-table th:nth-child(3), 
-    .custom-table td:nth-child(3) { display: none; } /* Ukrywamy mniej ważne kolumny na mobile */
+    .custom-table td:nth-child(3),
+    .custom-table th:nth-child(5), 
+    .custom-table td:nth-child(5) { 
+        display: none; 
+    }
 }

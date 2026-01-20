@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="public/img/favicon.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
     <link href="public/styles/main.css" rel="stylesheet">
@@ -19,13 +21,16 @@
             <li><a href="dashboard"><i class="fa-solid fa-house"></i> <span>HOME</span></a></li>
             <li><a href="market"><i class="fa-solid fa-chart-line"></i> <span>POWRÓT DO RYNKU</span></a></li>
             <li class="balance-item">
-                <span style="color: #00d2ff;"><?= number_format($balance ?? 0, 2) ?> $</span>
+                <i class="fa-solid fa-coins" style="color: #00d2ff;"></i>
+                <span style="font-weight: bold; color: #00d2ff; margin-left: 5px;">
+                    $<?= number_format($balance ?? 151401, 2, '.', ',') ?>
+                </span>
             </li>
         </ul>
     </nav>
 
-    <main style="justify-content: center; align-items: center;">
-        <div class="card" style="max-width: 500px; width: 100%; padding: 40px;">
+    <main style="display: flex; justify-content: center; align-items: flex-start; min-height: 80vh; padding-top: 50px;">
+        <div class="card" style="max-width: 500px; width: 100%; padding: 40px; text-align: left;">
 
             <?php if (isset($_SESSION['error'])): ?>
                 <div style="background: rgba(255, 68, 68, 0.2); border: 1px solid #ff4444; color: #ff4444; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold;">
@@ -39,14 +44,14 @@
                 </div>
             <?php endif; ?>
 
-            <h1 style="margin-top: 0;">Panel <?= $type === 'BUY' ? 'Zakupu' : 'Sprzedaży' ?></h1>
-            <div style="font-size: 2rem; color: #00d2ff; margin-bottom: 20px;">
-                <strong><?= $symbol ?></strong>
+            <h1 style="margin-top: 0; font-size: 1.5rem; color: #fff;">Panel <?= $type === 'BUY' ? 'Zakupu' : 'Sprzedaży' ?></h1>
+            <div style="font-size: 2.5rem; color: #00d2ff; margin-bottom: 20px; font-weight: bold;">
+                <?= $symbol ?>
             </div>
 
             <div class="trade-info" style="margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
-                <p>Aktualna cena: <strong id="price">$<?= number_format($price, 2) ?></strong></p>
-                <p>Twój portfel: <strong><?= number_format($balance, 2) ?> PLN</strong></p>
+                <p style="margin: 5px 0;">Aktualna cena: <strong id="price" style="color: #fff;">$<?= number_format($price, 2) ?></strong></p>
+                <p style="margin: 5px 0;">Twój portfel: <strong style="color: #fff;">$<?= number_format($balance, 2) ?></strong></p>
             </div>
 
             <form action="executeTrade" method="POST">
@@ -55,9 +60,10 @@
                 <input type="hidden" name="type" value="<?= $type ?>">
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 10px;">Ilość jednostek:
+                    <label style="display: block; margin-bottom: 10px; color: #888; font-size: 0.9rem;">
+                        Ilość jednostek:
                         <?php if($type === 'SELL'): ?>
-                            <span style="color: #888;">(Posiadasz: <?= (float)$owned_amount ?>)</span>
+                            <span style="color: #00d2ff; float: right;">Posiadasz: <?= (float)$owned_amount ?></span>
                         <?php endif; ?>
                     </label>
                     
@@ -69,21 +75,21 @@
                         <?php if($type === 'SELL'): ?> max="<?= $owned_amount ?>" <?php endif; ?>
                         value="1"
                         required
-                        style="width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 8px; font-size: 1.2rem;"
+                        style="width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 8px; font-size: 1.5rem; font-weight: bold; box-sizing: border-box;"
                     >
-                    <div id="zero-error" style="color: #ff4444; font-size: 0.8rem; margin-top: 5px; display: none;">
-                        Ilość musi być większa od zera!
+                    <div id="zero-error" style="color: #ff4444; font-size: 0.8rem; margin-top: 10px; display: none; font-weight: bold;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Ilość musi być większa od zera!
                     </div>
                 </div>
 
-                <div id="summary-box" style="background: rgba(0,210,255,0.1); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                    <p style="margin: 0; font-size: 0.9rem;">Przewidywana wartość (USD):</p>
-                    <p style="margin: 5px 0 0 0; font-size: 1.5rem; font-weight: bold; color: #00ff88;">
+                <div id="summary-box" style="background: rgba(0,210,255,0.1); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid rgba(0,210,255,0.2);">
+                    <p style="margin: 0; font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px;">Przewidywana wartość (USD):</p>
+                    <p style="margin: 5px 0 0 0; font-size: 1.8rem; font-weight: bold; color: #00ff88;">
                         $ <span id="total-value">0.00</span>
                     </p>
                 </div>
 
-                <button type="submit" id="submit-btn" class="buy-btn" style="width: 100%; padding: 20px; font-size: 1.1rem; background: <?= $type === 'BUY' ? '#00d2ff' : '#ff4444' ?>; color: <?= $type === 'BUY' ? 'black' : 'white' ?>; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                <button type="submit" id="submit-btn" style="width: 100%; padding: 20px; font-size: 1.1rem; background: <?= $type === 'BUY' ? '#00d2ff' : '#ff4444' ?>; color: <?= $type === 'BUY' ? 'black' : 'white' ?>; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;">
                     POTWIERDŹ <?= $type === 'BUY' ? 'ZAKUP' : 'SPRZEDAŻ' ?>
                 </button>
             </form>
@@ -122,9 +128,11 @@
             // 2. Walidacja środków (tylko przy zakupie)
             if (tradeType === 'BUY' && total > userBalance) {
                 summaryBox.style.background = "rgba(255, 68, 68, 0.1)";
+                summaryBox.style.borderColor = "rgba(255, 68, 68, 0.3)";
                 totalValueSpan.style.color = "#ff4444";
             } else {
                 summaryBox.style.background = "rgba(0,210,255,0.1)";
+                summaryBox.style.borderColor = "rgba(0,210,255,0.2)";
                 totalValueSpan.style.color = "#00ff88";
             }
 
@@ -136,7 +144,7 @@
         };
 
         amountInput.addEventListener('input', updateTotal);
-        updateTotal(); // Inicjalizacja przy ładowaniu
+        updateTotal(); 
     </script>
 </body>
 </html>

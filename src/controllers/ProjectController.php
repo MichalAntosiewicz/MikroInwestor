@@ -10,6 +10,21 @@ class ProjectController extends AppController {
     private $userRepository;
     private $marketService;
 
+    private function getRefreshTime() {
+        // Jeśli ciasteczko z JS istnieje, PHP też może z niego skorzystać dla idealnej spójności
+        if (isset($_COOKIE['market_expire_time'])) {
+            $remaining = $_COOKIE['market_expire_time'] - time();
+            if ($remaining > 0) return $remaining;
+        }
+
+        // Jeśli nie ma ciasteczka, używamy standardowej logiki sesji
+        if (!isset($_SESSION['last_market_sync'])) {
+            $_SESSION['last_market_sync'] = time();
+        }
+        $elapsed = time() - $_SESSION['last_market_sync'];
+        return 60 - ($elapsed % 60);
+    }
+
     public function __construct() {
         parent::__construct();
         $this->userRepository = new UserRepository();
@@ -36,19 +51,16 @@ class ProjectController extends AppController {
             exit();
         }
 
-        $currentTime = time();
-        $cacheDuration = 60;
+        // SYNCHRONIZACJA: Pobieramy czas z jednej wspólnej metody
+        $refresh_in = $this->getRefreshTime();
 
-        if (isset($_SESSION['assets_cache']) && ($currentTime - $_SESSION['assets_timestamp'] < $cacheDuration)) {
-            $assets = $_SESSION['assets_cache'];
-        } else {
-            // Użycie usługi z fabryki
+        // Odśwież cache, jeśli czas dobiegł końca (np. pozostało 60s po resecie)
+        if (!isset($_SESSION['assets_cache']) || $refresh_in >= 60) {
             $assets = $this->marketService->getMarketData();
             $_SESSION['assets_cache'] = $assets;
-            $_SESSION['assets_timestamp'] = $currentTime;
+        } else {
+            $assets = $_SESSION['assets_cache'];
         }
-
-        $secondsLeft = $cacheDuration - ($currentTime - ($_SESSION['assets_timestamp'] ?? $currentTime));
 
         require_once __DIR__.'/../repository/PortfolioRepository.php';
         $portfolioRepo = new PortfolioRepository();
@@ -56,7 +68,7 @@ class ProjectController extends AppController {
 
         $this->render('dashboard', [
             'assets' => $assets,
-            'refresh_in' => $secondsLeft,
+            'refresh_in' => $refresh_in, // Używamy zsynchronizowanego czasu
             'balance' => $user->getBalance(),
             'user_assets' => $userPortfolio,
         ]);
@@ -69,22 +81,18 @@ class ProjectController extends AppController {
             exit();
         }
 
-        $currentTime = time();
-        $cacheDuration = 60;
+        $refresh_in = $this->getRefreshTime();
 
-        if (isset($_SESSION['assets_cache']) && ($currentTime - $_SESSION['assets_timestamp'] < $cacheDuration)) {
-            $assets = $_SESSION['assets_cache'];
-        } else {
+        if (!isset($_SESSION['assets_cache']) || $refresh_in >= 60) {
             $assets = $this->marketService->getMarketData();
             $_SESSION['assets_cache'] = $assets;
-            $_SESSION['assets_timestamp'] = $currentTime;
+        } else {
+            $assets = $_SESSION['assets_cache'];
         }
-
-        $secondsLeft = $cacheDuration - ($currentTime - ($_SESSION['assets_timestamp'] ?? $currentTime));
 
         $this->render('market', [
             'assets' => $assets,
-            'refresh_in' => $secondsLeft,
+            'refresh_in' => $refresh_in,
             'balance' => $user->getBalance()
         ]);
     }
@@ -151,7 +159,8 @@ class ProjectController extends AppController {
         $this->render('portfolio', [
             'user_assets' => $user_assets,
             'total_value' => $total_portfolio_value,
-            'balance' => $user->getBalance()
+            'balance' => $user->getBalance(),
+            'refresh_in' => $this->getRefreshTime()
         ]);
     }
 

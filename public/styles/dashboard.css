@@ -1,12 +1,48 @@
-/* Siatka kart */
-section {
-    flex: 3;
+/* =========================================
+   UKŁAD GŁÓWNY (DASHBOARD / RYNEK)
+   ========================================= */
+
+main {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
+    /* Lewa kolumna (rynek) jest elastyczna, prawa (info) ma stałe 300px */
+    grid-template-columns: 1fr 300px;
+    gap: 30px;
+    padding: 30px;
+    max-width: 1600px;
+    margin: 0 auto; /* Wyśrodkowanie całej zawartości na ekranie */
 }
 
-/* Szklana karta akcji */
+.content-left {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+/* Nagłówek nad siatką akcji */
+.market-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 15px 25px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(5px);
+}
+
+/* =========================================
+   SIATKA KART I KARTY ASSETÓW
+   ========================================= */
+
+.assets-grid {
+    display: grid;
+    /* Automatyczne dopasowanie kolumn do szerokości ekranu */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
 .card {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
@@ -14,35 +50,41 @@ section {
     border-radius: 15px;
     padding: 25px;
     text-align: center;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
 .card:hover {
     transform: scale(1.03);
     border-color: #00d2ff;
+    background: rgba(255, 255, 255, 0.08);
 }
 
-.price { font-size: 24px; font-weight: bold; margin: 10px 0; }
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.card-header i {
+    color: #00d2ff;
+}
+
+.price { 
+    font-size: 24px; 
+    font-weight: bold; 
+    margin: 10px 0; 
+    color: #fff;
+}
+
+/* Kolory zmian procentowych */
 .positive { color: #00ff88; }
 .negative { color: #ff4444; }
 
-/* Panel boczny i timer */
-aside {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 15px;
-    padding: 20px;
-}
-
-.refresh-timer {
-    background: rgba(0, 210, 255, 0.1);
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-
+/* =========================================
+   PRZYCISKI I KOMPONENTY INTERFEJSU
+   ========================================= */
 
 .trade-buttons {
     display: flex;
@@ -58,23 +100,14 @@ aside {
     text-decoration: none;
     border-radius: 8px;
     font-weight: bold;
+    font-size: 0.85rem;
     transition: 0.3s;
+    cursor: pointer;
 }
 
 .btn-trade.buy {
     background: #00d2ff;
-    color: black;
-}
-
-.btn-trade.sell {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.btn-trade.sell.disabled {
-    opacity: 0.3;
-    pointer-events: none; /* Wyłącza klikanie */
+    color: #000;
 }
 
 .btn-trade.buy:hover {
@@ -82,46 +115,79 @@ aside {
     box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
 }
 
-
-
-.badge {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.badge.buy {
-    background-color: rgba(0, 210, 255, 0.2);
-    color: #00d2ff;
-    border: 1px solid #00d2ff;
-}
-
-.badge.sell {
-    background-color: rgba(255, 68, 68, 0.2);
-    color: #ff4444;
-    border: 1px solid #ff4444;
-}
-
-.period-btn {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #888;
-    padding: 5px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-weight: bold;
-}
-
-.period-btn:hover {
-    background: rgba(255,255,255,0.1);
+.btn-trade.sell {
+    background: rgba(255, 255, 255, 0.1);
     color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.period-btn.active {
-    background: #00d2ff;
-    color: #000;
-    border-color: #00d2ff;
+.btn-trade.sell:hover:not(.disabled) {
+    background: rgba(255, 68, 68, 0.2);
+    border-color: #ff4444;
+    color: #ff4444;
+}
+
+.btn-trade.sell.disabled {
+    opacity: 0.2;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* Timer i wskaźnik Live */
+.local-timer {
+    color: #00d2ff;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#timer {
+    font-weight: bold;
+    color: #00ff88;
+}
+
+/* =========================================
+   PANEL BOCZNY (RISK NOTICE)
+   ========================================= */
+
+.risk-notice {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    padding: 25px;
+    border-radius: 20px;
+    height: fit-content;
+    position: sticky;
+    top: 100px; /* Panel zostaje widoczny podczas przewijania */
+}
+
+.risk-notice h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* =========================================
+   RESPONSYWNOŚĆ (MOBILE)
+   ========================================= */
+
+@media (max-width: 1100px) {
+    main { 
+        grid-template-columns: 1fr; /* Jeden pod drugim na średnich ekranach */
+    }
+    
+    .risk-notice { 
+        position: static; 
+        order: 3; /* Panel ryzyka ląduje na samym dole */
+    }
+
+    .content-left {
+        order: 2;
+    }
+}
+
+@media (max-width: 600px) {
+    .assets-grid {
+        grid-template-columns: 1fr; /* Jedna duża karta na telefonie */
+    }
 }
