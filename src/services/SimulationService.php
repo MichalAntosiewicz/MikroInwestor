@@ -6,7 +6,6 @@ require_once 'MarketServiceInterface.php';
 
 class SimulationService implements MarketServiceInterface {
     public function getMarketData(): array {
-        // Lista popularnych spółek do symulacji
         $symbols = [
             'AAPL' => [170, 190],
             'MSFT' => [390, 420],
@@ -21,7 +20,7 @@ class SimulationService implements MarketServiceInterface {
         $data = [];
         foreach ($symbols as $symbol => $range) {
             $price = rand($range[0] * 100, $range[1] * 100) / 100;
-            $change = rand(-500, 500) / 100; // Zmiana od -5% do +5%
+            $change = rand(-500, 500) / 100;
 
             $data[] = [
                 'symbol' => $symbol,

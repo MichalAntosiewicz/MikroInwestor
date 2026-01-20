@@ -70,7 +70,6 @@ class TradeRepository extends Repository {
         try {
             $db->beginTransaction();
 
-            // 1. Pobierz asset_id dla symbolu
             $stmt = $db->prepare('SELECT id FROM public.assets WHERE symbol = :symbol');
             $stmt->execute(['symbol' => $symbol]);
             $assetId = $stmt->fetchColumn();
@@ -79,7 +78,6 @@ class TradeRepository extends Repository {
                 throw new Exception("Nie znaleziono aktywa o symbolu: " . $symbol);
             }
 
-            // 2. Sprawdź stan posiadania (rzutujemy na int/float dla pewności)
             $stmt = $db->prepare('
                 SELECT total_amount FROM public.portfolios 
                 WHERE user_id = :uid AND asset_id = :aid
@@ -94,7 +92,6 @@ class TradeRepository extends Repository {
                 throw new Exception("Niewystarczająca ilość akcji! Masz: $currentAmount, chcesz sprzedać: $amount");
             }
 
-            // 3. Dodaj pieniądze użytkownikowi
             $totalGain = (float)$amount * (float)$price;
             $stmt = $db->prepare('UPDATE public.users SET balance = balance + :gain WHERE id = :id');
             $stmt->execute([
@@ -102,7 +99,6 @@ class TradeRepository extends Repository {
                 'id' => (int)$userId
             ]);
 
-            // 4. Odejmij akcje z portfela
             $stmt = $db->prepare('
                 UPDATE public.portfolios 
                 SET total_amount = total_amount - :amt 
@@ -114,7 +110,6 @@ class TradeRepository extends Repository {
                 'aid' => (int)$assetId
             ]);
 
-            // 5. Zapisz transakcję w historii
             $stmt = $db->prepare('
                 INSERT INTO public.transactions (user_id, asset_id, type, amount, price_per_unit) 
                 VALUES (?, ?, ?, ?, ?)
@@ -131,7 +126,6 @@ class TradeRepository extends Repository {
             return true;
         } catch (Exception $e) {
             $db->rollBack();
-            // Wyświetl błąd w logach kontenera php (docker logs mikroinwestor_php)
             error_log("BŁĄD SPRZEDAŻY: " . $e->getMessage());
             return false;
         }

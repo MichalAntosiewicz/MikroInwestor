@@ -1,4 +1,4 @@
-/* Główne tło strony */
+
 html, body {
     margin: 0;
     padding: 0;
@@ -14,7 +14,6 @@ html, body {
     overflow: hidden;
 }
 
-/* Kontener logowania - Glassmorphism */
 #login-page .auth-box {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(15px);
@@ -27,14 +26,13 @@ html, body {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    z-index: 10; /* Upewnia się, że Twoje okno jest na wierzchu */
+    z-index: 10;
 }
 
 #login-page > div:not(.auth-box) {
     display: none !important;
 }
 
-/* Obszar Logo */
 .logo-area {
     text-align: center;
     margin-bottom: 2rem;
@@ -44,12 +42,12 @@ html, body {
     font-size: 2rem;
     margin: 10px 0;
     letter-spacing: 2px;
-    color: #ffffff; /* Biały napis Mikro */
+    color: #ffffff;
     text-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
 }
 
 .logo-area h1 span {
-    color: #00d2ff; /* Niebieski neonowy Inwestor */
+    color: #00d2ff;
 }
 
 .neon-icon {
@@ -58,7 +56,6 @@ html, body {
     text-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
 }
 
-/* Formularz */
 .login-form {
     width: 100%;
     display: flex;
@@ -66,46 +63,40 @@ html, body {
     gap: 1.2rem;
 }
 
-/* Pola wejściowe */
 .input-container {
     position: relative;
     width: 100%;
-    display: flex; /* Dodane dla lepszej kontroli */
-    align-items: center; /* Wyśrodkowanie w pionie */
+    display: flex;
+    align-items: center;
 }
 
-/* Styl dla ikon @ i Klucza */
 .input-container i {
     position: absolute;
     left: 0;
     top: 0;
     
-    /* Precyzyjne wymiary zgodne z wysokością inputa */
     width: 3rem;
     height: 100%;
     
-    /* Wyśrodkowanie samej ikonki wewnątrz tego kwadratu */
     display: flex;
     justify-content: center;
     align-items: center;
     
-    /* Kolorystyka i tło (opcjonalnie, możesz usunąć background jeśli chcesz same ikony) */
     background: rgba(0, 210, 255, 0.2); 
     color: #00d2ff;
     border-radius: 12px 0 0 12px;
     
     font-size: 1.1rem;
-    pointer-events: none; /* Żeby kliknięcie w ikonę aktywowało input */
+    pointer-events: none;
     box-sizing: border-box;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-right: none;
 }
 
-/* Styl dla samego pola tekstowego */
 .input-container input {
     width: 100%;
-    height: 3rem; /* Stała wysokość ułatwia pozycjonowanie */
-    padding: 0 15px 0 3.8rem; /* Większy lewy padding, żeby tekst nie nachodził na ikonę */
+    height: 3rem; 
+    padding: 0 15px 0 3.8rem;
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
@@ -123,7 +114,6 @@ html, body {
     box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
 }
 
-/* Odstęp między polami */
 .login-form > .input-container {
     margin-bottom: 5px;
 }
@@ -132,7 +122,6 @@ html, body {
     color: #888;
 }
 
-/* Przycisk logowania */
 .login-btn, button[type="submit"] {
     width: 100%;
     padding: 14px;
@@ -158,7 +147,6 @@ html, body {
     box-shadow: 0 5px 20px rgba(0, 210, 255, 0.5);
 }
 
-/* Błędy i wiadomości */
 .error-badge, .message {
     background: rgba(255, 77, 77, 0.15);
     color: #ff4d4d;
@@ -172,7 +160,6 @@ html, body {
     box-sizing: border-box;
 }
 
-/* Linki na dole */
 .form-footer, p {
     margin-top: 1.5rem;
     font-size: 0.9rem;
@@ -192,7 +179,6 @@ html, body {
     text-shadow: 0 0 8px rgba(0, 210, 255, 0.5);
 }
 
-/* Responsywność */
 @media (max-width: 480px) {
     .login-container {
         padding: 2rem;

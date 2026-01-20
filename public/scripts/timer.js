@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (timeLeft <= 0) {
             clearInterval(countdown);
-            // Wykonujemy animację odświeżania i przeładowujemy stronę
             document.getElementById('refresh-icon').classList.add('fa-spin');
             window.location.reload();
         }

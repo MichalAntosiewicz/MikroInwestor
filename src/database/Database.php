@@ -10,7 +10,6 @@ class Database {
     private $connection;
 
     private function __construct() {
-        // Dane zgodne z Twoim docker-compose.yaml
         $host = 'db';
         $db   = 'mikroinwestor_db';
         $user = 'user';

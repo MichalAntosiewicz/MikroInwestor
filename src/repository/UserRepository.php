@@ -20,14 +20,13 @@ class UserRepository extends Repository {
             return null;
         }
 
-        // POPRAWKA: Musisz przekazać tyle samo argumentów i w tej samej kolejności co w getUser
         return new \src\models\User(
             $user['email'],
             $user['password'],
             $user['username'],
             (float)$user['balance'],
             (int)$user['id'],
-            $user['market_mode'] // Pobieramy 'simulated' lub 'real'
+            $user['market_mode']
         );
     }
 
@@ -58,7 +57,6 @@ class UserRepository extends Repository {
             VALUES (?, ?, ?)
         ');
 
-        // Pamiętaj, że SecurityController wysyła już zahaszowane hasło!
         $stmt->execute([
             $user->getUsername(),
             $user->getEmail(),

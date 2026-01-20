@@ -1,7 +1,3 @@
-/* =========================================
-   KONTENER I STRUKTURA TABELI
-   ========================================= */
-
 .table-container {
     width: 100%;
     margin-top: 30px;
@@ -18,13 +14,12 @@
     color: white;
 }
 
-/* Nagłówek tabeli */
 .custom-table thead tr {
     background: rgba(0, 210, 255, 0.05);
 }
 
 .custom-table th {
-    padding: 25px 20px; /* Twój duży odstęp */
+    padding: 25px 20px;
     text-align: left;
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -33,12 +28,9 @@
     border-bottom: 2px solid rgba(255, 255, 255, 0.05);
 }
 
-/* =========================================
-   WIERSZE I KOMÓRKI
-   ========================================= */
 
 .custom-table td {
-    padding: 22px 20px; /* Twój zwiększony odstęp */
+    padding: 22px 20px;
     vertical-align: middle;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease;
@@ -48,17 +40,11 @@
     border-bottom: none;
 }
 
-/* Efekt najechania - Twoja subtelna animacja */
 .custom-table tbody tr:hover {
     background: rgba(255, 255, 255, 0.02);
     transform: scale(1.002);
 }
 
-/* =========================================
-   ELEMENTY WEWNĄTRZ TABELI
-   ========================================= */
-
-/* Tagi symboli (np. AAPL, BTC) */
 .symbol-tag {
     display: flex;
     align-items: center;
@@ -70,7 +56,6 @@
     color: #00d2ff;
 }
 
-/* Pigułki statusu (Zysk / Strata / Typ transakcji) */
 .status-pill {
     padding: 8px 14px;
     border-radius: 8px;
@@ -81,7 +66,6 @@
     gap: 6px;
 }
 
-/* Kolorystyka zysków i strat */
 .status-pill.positive {
     background: rgba(0, 255, 136, 0.1);
     color: #00ff88;
@@ -92,7 +76,6 @@
     color: #ff4444;
 }
 
-/* Box informacyjny portfela (nad tabelą) */
 .portfolio-info-box {
     display: flex;
     justify-content: space-between;
@@ -102,10 +85,6 @@
     border-radius: 15px;
     border: 1px solid rgba(0, 210, 255, 0.1);
 }
-
-/* =========================================
-   RESPONSYWNOŚĆ
-   ========================================= */
 
 @media (max-width: 900px) {
     .portfolio-info-box {
@@ -117,7 +96,6 @@
 }
 
 @media (max-width: 768px) {
-    /* Ukrywamy kolumny: Śr. Cena Zakupu i ROI na małych ekranach */
     .custom-table th:nth-child(3), 
     .custom-table td:nth-child(3),
     .custom-table th:nth-child(5), 

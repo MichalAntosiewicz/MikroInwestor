@@ -20,7 +20,6 @@ class AppController {
         include $templatePath;
         $output = ob_get_clean();
     } else {
-        // Jeśli plik nie istnieje, wyświetlamy prosty komunikat zamiast błędu krytycznego
         $output = "<h1>404 Not Found</h1><p>Template $templatePath not found.</p>";
     }
     

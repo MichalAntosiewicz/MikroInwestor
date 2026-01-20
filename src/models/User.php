@@ -7,7 +7,7 @@ class User {
     private $password;
     private $username;
     private $balance;
-    private $marketMode; // NOWE POLE
+    private $marketMode;
 
     public function __construct(
         string $email, 
@@ -15,7 +15,7 @@ class User {
         string $username, 
         float $balance = 0.0, 
         int $id = null, 
-        string $marketMode = 'simulated' // NOWY ARGUMENT
+        string $marketMode = 'simulated'
     ) {
         $this->email = $email;
         $this->password = $password;
@@ -31,7 +31,6 @@ class User {
     public function getBalance(): float { return (float)$this->balance; }
     public function getPassword() { return $this->password; }
     
-    // NOWY GETTER
     public function getMarketMode(): string { 
         return $this->marketMode; 
     }

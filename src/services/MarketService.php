@@ -6,7 +6,6 @@ class MarketService implements MarketServiceInterface{
     private $apiKey;
 
     public function __construct() {
-        // Pobieramy klucz bezpiecznie z environment variables
         $this->apiKey = getenv('FINNHUB_API_KEY');
     }
 
@@ -15,7 +14,6 @@ class MarketService implements MarketServiceInterface{
         
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        // Opcjonalnie: wyłącz sprawdzanie SSL jeśli masz problemy lokalnie (tylko dev!)
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); 
         
         $response = curl_exec($curl);
@@ -46,7 +44,6 @@ class MarketService implements MarketServiceInterface{
     }
 
     public function getHistory($symbol, $period) {
-        // Używamy $this->apiKey zamiast nieistniejącego $apiKey
         $token = $this->apiKey; 
         
         $to = time();
@@ -61,13 +58,12 @@ class MarketService implements MarketServiceInterface{
 
         $resolution = ($period === '5Y') ? 'W' : 'D';
 
-        // Budujemy poprawny URL
         $url = "https://finnhub.io/api/v1/stock/candle?symbol=$symbol&resolution=$resolution&from=$from&to=$to&token=$token";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Dodaj to dla bezpieczeństwa połączenia
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $response = curl_exec($ch);
         
         if(curl_errno($ch)) {

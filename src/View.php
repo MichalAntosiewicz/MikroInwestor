@@ -2,7 +2,6 @@
 
 class View {
     public function render(string $template, array $variables = []) {
-        // Ścieżka zgodna z Twoim wymaganiem: public/views/
         $path = 'public/views/' . $template . '.php';
 
         if (!file_exists($path)) {

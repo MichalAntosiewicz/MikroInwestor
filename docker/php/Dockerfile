@@ -1,6 +1,6 @@
 FROM php:8.3-fpm-alpine
 
-# Pakiety potrzebne do działania (zostają w kontenerze)
+
 ENV RUN_DEPS \
     zlib \
     libzip \
@@ -10,7 +10,6 @@ ENV RUN_DEPS \
     curl \
     libcurl
 
-# Pakiety potrzebne tylko do kompilacji (zostaną usunięte)
 ENV BUILD_DEPS \
     zlib-dev \
     libzip-dev \
@@ -28,10 +27,8 @@ ENV PHP_EXTENSIONS \
     pdo_pgsql \
     curl
 
-# 1. Update i instalacja zależności systemowych
 RUN apk update && apk add --no-cache $RUN_DEPS
 
-# 2. Instalacja zależności do kompilacji, instalacja rozszerzeń i sprzątanie
 RUN apk add --no-cache --virtual .build-deps $BUILD_DEPS \
     && docker-php-ext-configure gd --with-jpeg \
     && docker-php-ext-install -j "$(nproc)" $PHP_EXTENSIONS \

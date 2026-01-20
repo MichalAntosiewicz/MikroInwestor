@@ -11,13 +11,11 @@ class ProjectController extends AppController {
     private $marketService;
 
     private function getRefreshTime() {
-        // Jeśli ciasteczko z JS istnieje, PHP też może z niego skorzystać dla idealnej spójności
         if (isset($_COOKIE['market_expire_time'])) {
             $remaining = $_COOKIE['market_expire_time'] - time();
             if ($remaining > 0) return $remaining;
         }
 
-        // Jeśli nie ma ciasteczka, używamy standardowej logiki sesji
         if (!isset($_SESSION['last_market_sync'])) {
             $_SESSION['last_market_sync'] = time();
         }
@@ -30,8 +28,6 @@ class ProjectController extends AppController {
         $this->userRepository = new UserRepository();
         
         $user = $this->getLoggedInUser();
-        
-        // Pobieramy tryb z obiektu User (z bazy danych)
         $mode = $user ? $user->getMarketMode() : 'simulated';
         
         $this->marketService = MarketProviderFactory::getProvider($mode);
@@ -51,10 +47,8 @@ class ProjectController extends AppController {
             exit();
         }
 
-        // SYNCHRONIZACJA: Pobieramy czas z jednej wspólnej metody
         $refresh_in = $this->getRefreshTime();
 
-        // Odśwież cache, jeśli czas dobiegł końca (np. pozostało 60s po resecie)
         if (!isset($_SESSION['assets_cache']) || $refresh_in >= 60) {
             $assets = $this->marketService->getMarketData();
             $_SESSION['assets_cache'] = $assets;
@@ -68,7 +62,7 @@ class ProjectController extends AppController {
 
         $this->render('dashboard', [
             'assets' => $assets,
-            'refresh_in' => $refresh_in, // Używamy zsynchronizowanego czasu
+            'refresh_in' => $refresh_in,
             'balance' => $user->getBalance(),
             'user_assets' => $userPortfolio,
         ]);

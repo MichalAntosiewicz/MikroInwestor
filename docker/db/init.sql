@@ -51,7 +51,3 @@ INSERT INTO assets (symbol, name, type) VALUES
 ('ETH', 'Ethereum', 'crypto'),
 ('AAPL', 'Apple Inc.', 'stock'),
 ('TSLA', 'Tesla Inc.', 'stock');
-
--- Hasło dla admina to: admin123 (zahashowane)
-INSERT INTO users (username, email, password, balance) 
-VALUES ('admin', 'admin@mikro.pl', '$2y$10$fV/Jm8/Vp5C.M8lA2.H/UeN1P.S7.uN/qP5eW8.L3e.6V8.L3e.6V', 151401.00);
