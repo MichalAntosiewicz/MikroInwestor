@@ -2,63 +2,64 @@
 require_once 'Repository.php';
 
 class TradeRepository extends Repository {
-    public function buy($userId, $symbol, $amount, $price) {
+    public function buy(int $userId, string $symbol, float $amount, float $price): bool {
         $db = $this->database->getConnection();
         
         try {
             $db->beginTransaction();
 
-            // 1. Musimy pobrać asset_id na podstawie symbolu (np. AAPL -> 3)
-            $stmt = $db->prepare('SELECT id FROM public.assets WHERE symbol = :symbol');
+            // 1. Pobierz lub STWÓRZ asset_id
+            $stmt = $db->prepare('SELECT id FROM assets WHERE symbol = :symbol');
             $stmt->execute(['symbol' => $symbol]);
-            $asset = $stmt->fetch();
+            $asset = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$asset) {
-                throw new Exception("Nie znaleziono aktywa o symbolu: " . $symbol);
+                // Jeśli nie ma w bazie (np. NVDA), dodajemy go
+                $stmt = $db->prepare('INSERT INTO assets (symbol, name, type) VALUES (?, ?, ?)');
+                $stmt->execute([$symbol, $symbol . ' Inc.', 'stock']);
+                $assetId = $db->lastInsertId();
+            } else {
+                $assetId = $asset['id'];
             }
-            $assetId = $asset['id'];
-            $totalCost = $amount * $price;
 
-            // 2. Odejmij pieniądze użytkownikowi
-            $stmt = $db->prepare('UPDATE public.users SET balance = balance - :cost WHERE id = :id AND balance >= :cost');
-            $stmt->execute(['cost' => $totalCost, 'id' => $userId]);
+            // 2. Sprawdź i odejmij balans
+            $cost = $amount * $price;
+            $stmt = $db->prepare('UPDATE users SET balance = balance - :cost WHERE id = :id AND balance >= :cost');
+            $stmt->execute(['cost' => $cost, 'id' => $userId]);
             
             if ($stmt->rowCount() === 0) {
                 throw new Exception("Brak środków na koncie!");
             }
 
-            // 3. Dodaj do portfela (total_amount i avg_buy_price)
-            // Używamy UPSERT (INSERT ... ON CONFLICT)
+            // 3. Dodaj rekord do TRANSACTIONS
             $stmt = $db->prepare('
-                INSERT INTO public.portfolios (user_id, asset_id, total_amount, avg_buy_price)
-                VALUES (:uid, :aid, :amt, :price)
-                ON CONFLICT (user_id, asset_id) 
-                DO UPDATE SET 
-                    avg_buy_price = (public.portfolios.total_amount * public.portfolios.avg_buy_price + (:amt * :price)) 
-                                    / (public.portfolios.total_amount + :amt),
-                    total_amount = public.portfolios.total_amount + :amt
-            ');
-            
-            $stmt->execute([
-                'uid' => $userId, 
-                'aid' => $assetId, 
-                'amt' => $amount, 
-                'price' => $price
-            ]);
-
-            // 4. Zapisz w historii transakcji
-            $stmt = $db->prepare('
-                INSERT INTO public.transactions (user_id, asset_id, type, amount, price_per_unit) 
+                INSERT INTO transactions (user_id, asset_id, type, amount, price_per_unit) 
                 VALUES (?, ?, ?, ?, ?)
             ');
             $stmt->execute([$userId, $assetId, 'BUY', $amount, $price]);
 
+            // 4. UPSERT w PORTFOLIOS
+            $stmt = $db->prepare('
+                INSERT INTO portfolios (user_id, asset_id, total_amount, avg_buy_price)
+                VALUES (:uid, :aid, :amount, :price)
+                ON CONFLICT (user_id, asset_id) 
+                DO UPDATE SET 
+                    avg_buy_price = (portfolios.avg_buy_price * portfolios.total_amount + :price * :amount) / (portfolios.total_amount + :amount),
+                    total_amount = portfolios.total_amount + :amount
+            ');
+            $stmt->execute([
+                'uid' => $userId, 
+                'aid' => $assetId, 
+                'amount' => $amount, 
+                'price' => $price
+            ]);
+
             $db->commit();
             return true;
         } catch (Exception $e) {
-            $db->rollBack();
-            // Logowanie błędu, żebyś widział co poszło nie tak
-            error_log("Błąd zakupu: " . $e->getMessage());
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
             return false;
         }
     }

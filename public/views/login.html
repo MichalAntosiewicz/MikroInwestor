@@ -1,54 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
-
     <link href="public/styles/main.css" rel="stylesheet">
     <link href="public/styles/login.css" rel="stylesheet">
-
-    <title>LOGIN</title>
-    <style>
-        body{
-            background-color: #f0f2f5;
-            display : flex;
-            flex-direction : column;
-        }
-    </style>
+    <title>MikroInwestor | Logowanie</title>
 </head>
-<body id="login-page" class="flex-row-center-center">
+<body id="login-page">
     
-    <div class="flex-column-center-center">
-        <h1>LOGIN</h1>
-        <form class="login-form flex-column-center-center" action="login" method="POST">
-            
+    <div class="auth-box">
+        <div class="logo-area">
+            <i class="fa-solid fa-chart-line neon-icon"></i>
+            <h1>Mikro<span>Inwestor</span></h1>
+        </div>
+
+        <form class="login-form" action="login" method="POST">
             <div class="messages">
                 <?php if(isset($messages)): ?>
                     <?php foreach($messages as $message): ?>
-                        <p class="message" style="color: #ff4d4d; font-size: 0.8rem; margin-bottom: 10px;">
-                            <?= $message; ?>
-                        </p>
+                        <div class="error-badge">
+                            <i class="fa-solid fa-circle-exclamation"></i> <?= $message; ?>
+                        </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
             
-            <div class="email">
-                <input name="email" type="email" placeholder="email" required>
-                <i class="fa-solid fa-at flex-column-center-center"></i>
+            <div class="input-container">
+                <i class="fa-solid fa-at"></i>
+                <input name="email" type="email" placeholder="Email" required>
             </div>
-            <div class="password">
-                <input name="password" type="password" placeholder="password" required>
-                <i class="fa-solid fa-key flex-column-center-center"></i>
+
+            <div class="input-container">
+                <i class="fa-solid fa-key"></i>
+                <input name="password" type="password" placeholder="Hasło" required>
             </div>
-            <button type="submit"><i class="fa-solid fa-right-to-bracket"></i> SIGN IN</button>
-            <p style = 'float : left'>Don't have an account? <a href = 'register'>Register</a></p>
+
+            <button type="submit" class="login-btn">
+                ZALOGUJ SIĘ <i class="fa-solid fa-right-to-bracket"></i>
+            </button>
+
+            <div class="form-footer">
+                Nie masz konta? <a href="register">Zarejestruj się</a>
+            </div>
         </form>
     </div>
-    
-
 </body>
 </html>

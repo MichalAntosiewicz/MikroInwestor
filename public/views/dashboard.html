@@ -1,17 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-
     <script src="public/scripts/timer.js" defer></script>
     <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
-
     <link href="public/styles/main.css" rel="stylesheet">
     <link href="public/styles/dashboard.css" rel="stylesheet">
     <link href="public/styles/navbar.css" rel="stylesheet">
-    <title>DASHBOARD</title>
+    <title>MikroInwestor | Dashboard</title>
+    <style>
+        /* Szybka poprawka układu po usunięciu aside */
+        main {
+            display: grid;
+            grid-template-columns: 1fr 300px; /* Lewa strona szeroka, prawa na info */
+            gap: 20px;
+            padding: 20px;
+        }
+        @media (max-width: 900px) {
+            main { grid-template-columns: 1fr; }
+        }
+        .risk-notice {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            height: fit-content;
+        }
+        .timer-nav {
+            margin-left: 20px;
+            font-size: 0.9rem;
+            color: #888;
+            border-left: 1px solid #444;
+            padding-left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
 </head>
 <body>
     <nav class="main-nav">
@@ -29,66 +56,72 @@
             <li class="balance-item">
                 <i class="fa-solid fa-coins" style="color: #00d2ff;"></i>
                 <span style="font-weight: bold; color: #00d2ff; margin-left: 5px;">
-                    <?= number_format($balance ?? 151401, 2, ',', ' ') ?> PLN
+                    <?= number_format($balance ?? 0, 2, ',', ' ') ?> $
                 </span>
+            </li>
+            
+            <li class="timer-nav">
+                <i class="fa-solid fa-sync-alt" id="refresh-icon"></i>
+                <span id="timer"><?= $refresh_in ?? 60 ?></span>s
             </li>
         </ul>
     </nav>
-    <main>
-    <section>
-        <?php if(isset($assets)): ?>
-            <?php foreach($assets as $asset): ?>
-                <div class="card">
-                    <div onclick="location.href='asset?symbol=<?= $asset['symbol'] ?>'" style="cursor: pointer;">
-                        <div class="card-header">
-                            <i class="fa-solid fa-arrow-trend-up"></i>
-                            <strong><?= $asset['symbol'] ?></strong>
-                        </div>
-                        <p class="price">$<?= number_format($asset['price'], 2) ?></p>
-                        <p class="change <?= $asset['change'] >= 0 ? 'positive' : 'negative' ?>">
-                            <?= $asset['change'] >= 0 ? '+' : '' ?><?= $asset['change'] ?>%
-                        </p>
-                    </div>
 
-                    <div class="trade-buttons">
-                        <a href="trade?symbol=<?= $asset['symbol'] ?>&type=BUY" class="btn-trade buy">KUP</a>
-                        
-                        <?php 
-                            $userHasAsset = false;
-                            if(isset($user_assets)) {
-                                foreach($user_assets as $ua) {
-                                    if($ua['symbol'] == $asset['symbol'] && $ua['amount'] > 0) {
-                                        $userHasAsset = true;
-                                        break;
+    <main>
+        <section class="assets-grid">
+            <?php if(isset($assets)): ?>
+                <?php foreach($assets as $asset): ?>
+                    <div class="card">
+                        <div onclick="location.href='asset?symbol=<?= $asset['symbol'] ?>'" style="cursor: pointer;">
+                            <div class="card-header">
+                                <i class="fa-solid fa-arrow-trend-up"></i>
+                                <strong><?= $asset['symbol'] ?></strong>
+                            </div>
+                            <p class="price">$<?= number_format($asset['price'], 2) ?></p>
+                            <p class="change <?= $asset['change'] >= 0 ? 'positive' : 'negative' ?>">
+                                <?= $asset['change'] >= 0 ? '+' : '' ?><?= $asset['change'] ?>%
+                            </p>
+                        </div>
+
+                        <div class="trade-buttons">
+                            <a href="trade?symbol=<?= $asset['symbol'] ?>&type=BUY" class="btn-trade buy">KUP</a>
+                            
+                            <?php 
+                                $userHasAsset = false;
+                                if(isset($user_assets)) {
+                                    foreach($user_assets as $ua) {
+                                        if($ua['symbol'] == $asset['symbol'] && $ua['amount'] > 0) {
+                                            $userHasAsset = true;
+                                            break;
+                                        }
                                     }
                                 }
-                            }
-                        ?>
-                        
-                        <a href="trade?symbol=<?= $asset['symbol'] ?>&type=SELL" 
-                           class="btn-trade sell <?= !$userHasAsset ? 'disabled' : '' ?>">
-                           SPRZEDAJ
-                        </a>
+                            ?>
+                            
+                            <a href="trade?symbol=<?= $asset['symbol'] ?>&type=SELL" 
+                               class="btn-trade sell <?= !$userHasAsset ? 'disabled' : '' ?>">
+                                SPRZEDAJ
+                            </a>
+                        </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </section>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </section>
 
-    <aside>
-        <div class="refresh-timer">
-            Aktualizacja: <span id="timer"><?= $refresh_in ?? 60 ?></span>s
-            <i class="fa-solid fa-sync-alt" id="refresh-icon"></i>
+        <div class="risk-notice">
+            <h3 style="color: #00d2ff; margin-top: 0;"><i class="fa-solid fa-shield-halved"></i> Tryb Symulacji</h3>
+            <p style="font-size: 0.9rem; line-height: 1.6; color: #bbb;">
+                Witaj w symulatorze <strong>MikroInwestor</strong>. 
+            </p>
+            <p style="font-size: 0.85rem; line-height: 1.5; color: #888;">
+                Wszystkie środki widoczne na Twoim koncie (PLN) oraz zakupione aktywa są <strong>całkowicie fikcyjne</strong>. 
+                Służą one wyłącznie celom edukacyjnym i testowym w ramach projektu studenckiego.
+            </p>
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+            <p style="font-size: 0.8rem; color: #666; font-style: italic;">
+                Inwestowanie na prawdziwych rynkach wiąże się z ryzykiem utraty kapitału. Nie traktuj danych z tej aplikacji jako porad inwestycyjnych.
+            </p>
         </div>
-        <h1>Panel Inwestora</h1>
-        <ul>
-            <li><a href="history"><i class="fa-solid fa-receipt"></i> Historia transakcji</a></li>
-            <li><a href="market"><i class="fa-solid fa-chart-line"></i> Kup aktywa</a></li>
-            <li><a href="portfolio"><i class="fa-solid fa-wallet"></i> Twój portfel</a></li>
-            <li><a href="settings"><i class="fa-solid fa-gear"></i> Ustawienia konta</a></li>
-            <li><a href="login"><i class="fa-solid fa-right-from-bracket"></i> Wyloguj</a></li>
-        </ul>
-    </aside>
-</main>
+    </main>
 </body>
 </html>

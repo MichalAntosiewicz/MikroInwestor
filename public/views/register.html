@@ -1,35 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/8fd9367667.js" crossorigin="anonymous"></script>
     <link href="public/styles/main.css" rel="stylesheet">
     <link href="public/styles/login.css" rel="stylesheet">
-    <title>REGISTER</title>
+    <title>MikroInwestor | Rejestracja</title>
 </head>
-<body id="login-page" class="flex-row-center-center">
-    <div class="flex-column-center-center">
-        <h1>REGISTER</h1>
-        <form class="login-form flex-column-center-center" action="register" method="POST">
+<body id="login-page">
+    
+    <div class="auth-box">
+        <div class="logo-area">
+            <i class="fa-solid fa-user-plus neon-icon"></i>
+            <h1>Mikro<span>Inwestor</span></h1>
+            <p style="color: #888; margin-top: -10px;">Dołącz do społeczności</p>
+        </div>
+
+        <form class="login-form" action="register" method="POST">
+            <div class="messages">
+                <?php if(isset($messages)): ?>
+                    <?php foreach($messages as $message): ?>
+                        <div class="error-badge">
+                            <i class="fa-solid fa-circle-exclamation"></i> <?= $message; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+            
             <div class="input-container">
-                <input name="email" type="email" placeholder="email" required>
                 <i class="fa-solid fa-at"></i>
-                <p> cos </p>
+                <input name="email" type="email" placeholder="Email" required>
             </div>
+
             <div class="input-container">
-                <input name="username" type="text" placeholder="username" required>
                 <i class="fa-solid fa-user"></i>
+                <input name="username" type="text" placeholder="Nazwa użytkownika" required>
             </div>
+
             <div class="input-container">
-                <input name="password" type="password" placeholder="password" required>
                 <i class="fa-solid fa-key"></i>
+                <input name="password" type="password" placeholder="Hasło" required>
             </div>
-            <button type="submit"><i class="fa-solid fa-user-plus"></i> CREATE ACCOUNT</button>
+
+            <select name="market_mode" class="auth-input">
+                <option value="simulated">Tryb Symulacji</option>
+                <option value="real">Tryb Realny (Dane z NASDAQ/NYSE)</option>
+            </select>
+
+            <button type="submit" class="login-btn">
+                STWÓRZ KONTO <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <div class="form-footer">
+                Masz już konto? <a href="login">Zaloguj się</a>
+            </div>
         </form>
     </div>
+
 </body>
 </html>

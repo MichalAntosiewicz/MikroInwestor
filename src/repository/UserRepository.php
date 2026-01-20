@@ -16,15 +16,18 @@ class UserRepository extends Repository {
 
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user == false) {
+        if (!$user) {
             return null;
         }
 
-        return new User(
+        // POPRAWKA: Musisz przekazać tyle samo argumentów i w tej samej kolejności co w getUser
+        return new \src\models\User(
             $user['email'],
             $user['password'],
             $user['username'],
-            (float)($user['balance'] ?? 0) // Pobieramy saldo i rzutujemy na float
+            (float)$user['balance'],
+            (int)$user['id'],
+            $user['market_mode'] // Pobieramy 'simulated' lub 'real'
         );
     }
 
@@ -44,20 +47,22 @@ class UserRepository extends Repository {
             $user['password'],
             $user['username'],
             (float)$user['balance'],
-            (int)$user['id'] // Przekazujemy ID do konstruktora
+            (int)$user['id'],
+            
         );
     }
 
     public function addUser(User $user) {
-    $stmt = $this->database->getConnection()->prepare('
-        INSERT INTO public.users (username, email, password)
-        VALUES (?, ?, ?)
-    ');
+        $stmt = $this->database->getConnection()->prepare('
+            INSERT INTO public.users (username, email, password)
+            VALUES (?, ?, ?)
+        ');
 
-    $stmt->execute([
-        $user->getUsername(),
-        $user->getEmail(),
-        $user->getPassword() // Na razie tekst jawny, dla ułatwienia testów
-    ]);
-}
+        // Pamiętaj, że SecurityController wysyła już zahaszowane hasło!
+        $stmt->execute([
+            $user->getUsername(),
+            $user->getEmail(),
+            $user->getPassword() 
+        ]);
+    }
 }

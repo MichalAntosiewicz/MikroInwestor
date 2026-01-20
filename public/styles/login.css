@@ -1,24 +1,201 @@
+/* Główne tło strony */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100%;
+    background: radial-gradient(circle at 50% 30%, #0052d4 0%, #0a0a0a 80%, #000000 100%);
+    background-attachment: fixed;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Kontener logowania - Glassmorphism */
+#login-page .auth-box {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 3rem;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    z-index: 10; /* Upewnia się, że Twoje okno jest na wierzchu */
+}
+
+#login-page > div:not(.auth-box) {
+    display: none !important;
+}
+
+/* Obszar Logo */
+.logo-area {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.logo-area h1 {
+    font-size: 2rem;
+    margin: 10px 0;
+    letter-spacing: 2px;
+    color: #ffffff; /* Biały napis Mikro */
+    text-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+}
+
+.logo-area h1 span {
+    color: #00d2ff; /* Niebieski neonowy Inwestor */
+}
+
+.neon-icon {
+    font-size: 3rem;
+    color: #00d2ff;
+    text-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+}
+
+/* Formularz */
+.login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+/* Pola wejściowe */
 .input-container {
-    position: relative; /* To jest kotwica dla ikonki */
+    position: relative;
     width: 100%;
-    margin-bottom: 15px; /* Odstęp między polami */
-    color : black;
+    display: flex; /* Dodane dla lepszej kontroli */
+    align-items: center; /* Wyśrodkowanie w pionie */
 }
 
-.input-container > input {
-    width: 100%;
-    padding: 0.8em 3em 0.8em 1em; /* Zwiększony prawy padding, żeby tekst nie zachodził na ikonkę */
-    font-size: 1.2rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box; /* Ważne: padding nie powiększa szerokości inputa */
-}
-
-.input-container > i {
+/* Styl dla ikon @ i Klucza */
+.input-container i {
     position: absolute;
-    right: 1rem; /* Odległość od prawej krawędzi */
-    top: 50%;    /* Przesuń o 50% wysokości kontenera w dół */
-    transform: translateY(-50%); /* Cofnij o połowę własnej wysokości, żeby było idealnie w centrum */
+    left: 0;
+    top: 0;
+    
+    /* Precyzyjne wymiary zgodne z wysokością inputa */
+    width: 3rem;
+    height: 100%;
+    
+    /* Wyśrodkowanie samej ikonki wewnątrz tego kwadratu */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* Kolorystyka i tło (opcjonalnie, możesz usunąć background jeśli chcesz same ikony) */
+    background: rgba(0, 210, 255, 0.2); 
+    color: #00d2ff;
+    border-radius: 12px 0 0 12px;
+    
+    font-size: 1.1rem;
+    pointer-events: none; /* Żeby kliknięcie w ikonę aktywowało input */
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: none;
+}
+
+/* Styl dla samego pola tekstowego */
+.input-container input {
+    width: 100%;
+    height: 3rem; /* Stała wysokość ułatwia pozycjonowanie */
+    padding: 0 15px 0 3.8rem; /* Większy lewy padding, żeby tekst nie nachodził na ikonę */
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.input-container input:focus {
+    outline: none;
+    border-color: #00d2ff;
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+}
+
+/* Odstęp między polami */
+.login-form > .input-container {
+    margin-bottom: 5px;
+}
+
+.input-container input::placeholder {
     color: #888;
-    pointer-events: none; /* Kliknięcie w ikonkę "przelatuje" do inputa */
+}
+
+/* Przycisk logowania */
+.login-btn, button[type="submit"] {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(45deg, #0052d4, #00d2ff);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.login-btn:hover, button[type="submit"]:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 5px 20px rgba(0, 210, 255, 0.5);
+}
+
+/* Błędy i wiadomości */
+.error-badge, .message {
+    background: rgba(255, 77, 77, 0.15);
+    color: #ff4d4d;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 77, 77, 0.3);
+    font-size: 0.85rem;
+    width: 100%;
+    margin-bottom: 1rem;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Linki na dole */
+.form-footer, p {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: #aaa;
+    text-align: center;
+}
+
+.form-footer a, p a {
+    color: #00d2ff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.form-footer a:hover, p a:hover {
+    text-decoration: underline;
+    text-shadow: 0 0 8px rgba(0, 210, 255, 0.5);
+}
+
+/* Responsywność */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 2rem;
+        max-width: 90%;
+    }
 }

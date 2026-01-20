@@ -1,6 +1,8 @@
 <?php
 
-class MarketService {
+require_once 'MarketServiceInterface.php';
+
+class MarketService implements MarketServiceInterface{
     private $apiKey;
 
     public function __construct() {
@@ -32,7 +34,7 @@ class MarketService {
         ];
     }
 
-    public function getMarketData() {
+    public function getMarketData() : array {
         $symbols = ['AAPL', 'MSFT', 'TSLA', 'AMZN'];
         $results = [];
 

@@ -1,0 +1,74 @@
+/* Kontener tabeli */
+.table-container {
+    width: 100%;
+    margin-top: 30px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: white;
+}
+
+/* Nagłówek tabeli */
+.custom-table certain-head tr {
+    background: rgba(0, 210, 255, 0.05);
+}
+
+.custom-table th {
+    padding: 25px 20px; /* Duży odstęp w nagłówku */
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #888;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Wiersze tabeli */
+.custom-table td {
+    padding: 22px 20px; /* Zwiększony odstęp między wierszami */
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.custom-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Efekt najechania */
+.custom-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+    transform: scale(1.002);
+}
+
+/* Komórki specjalne */
+.symbol-tag {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.symbol-tag strong {
+    font-size: 1.1rem;
+    color: #00d2ff;
+}
+
+.status-pill {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .custom-table th:nth-child(3), 
+    .custom-table td:nth-child(3) { display: none; } /* Ukrywamy mniej ważne kolumny na mobile */
+}

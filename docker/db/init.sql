@@ -9,7 +9,8 @@ CREATE TABLE users (
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    balance DECIMAL(15, 2) DEFAULT 151401.00, -- Twoje saldo początkowe (album)
+    balance DECIMAL(15, 2) DEFAULT 10000, -- Twoje saldo początkowe (album)
+    market_mode VARCHAR(20) DEFAULT 'simulated', -- Tryb rynku (simulated lub real)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
