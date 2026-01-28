@@ -41,8 +41,20 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-size: 1px;
+    font-size: 10px; /* Zmienione z 1px */
+    letter-spacing: 1px;
+    font-weight: bold;
     transition: color 0.3s;
+    text-transform: uppercase;
+}
+
+.desktop-icons li a[href="admin_panel"] {
+    color: #ff4b2b;
+}
+
+.desktop-icons li a i {
+    font-size: 18px; /* Rozmiar samej ikony */
+    margin-bottom: 5px;
 }
 
 .desktop-icons li a:hover {

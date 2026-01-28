@@ -26,7 +26,14 @@
             <li><a href="portfolio"><i class="fa-solid fa-wallet"></i> <span>PORTFEL</span></a></li>
             <li><a href="market"><i class="fa-solid fa-chart-line"></i> <span>RYNEK</span></a></li>
             <li><a href="history"><i class="fa-solid fa-history"></i> <span>HISTORIA</span></a></li>
-            <li><a href="settings"><i class="fa-solid fa-gear"></i> <span>USTAWIENIA</span></a></li>
+            <?php if(isset($user) && $user->getRole() === 'admin'): ?>
+                <li>
+                    <a href="admin_panel" class="admin-link">
+                        <i class="fa-solid fa-user-shield"></i> 
+                        <span>ADMIN PANEL</span>
+                    </a>
+                </li>
+            <?php endif; ?>
             <li><a href="logout"><i class="fa-solid fa-right-from-bracket"></i> <span>WYLOGUJ</span></a></li>
 
             <li class="balance-item">

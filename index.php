@@ -25,5 +25,11 @@ Routing::get('logout', 'ProjectController');
 
 Routing::get('trade', 'ProjectController');
 Routing::post('executeTrade', 'ProjectController');
+Routing::get('admin_panel', 'ProjectController');
+Routing::post('deleteUser', 'ProjectController');
+
+Routing::post('deleteUser', 'ProjectController');
+Routing::get('settings', 'ProjectController');
+Routing::post('settings', 'ProjectController');
 
 Routing::run($path);
