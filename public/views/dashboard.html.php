@@ -41,7 +41,7 @@
             <div class="market-header">
                 <div class="local-timer">
                     <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i>
-                    Rynek odświeży się za: <span id="timer"><?= $refresh_in ?? 60 ?></span>s
+                    Rynek odświeży się za: <span id="timer"><?= (int)($refresh_in ?? 60) ?></span>s
                 </div>
                 <div style="color: #666; font-size: 0.7rem; letter-spacing: 2px; font-weight: bold;">
                     <i class="fa-solid fa-circle" style="color: #00ff88; font-size: 0.5rem; margin-right: 5px;"></i>
@@ -53,32 +53,32 @@
                 <?php if(isset($assets)): ?>
                     <?php foreach($assets as $asset): ?>
                         <div class="card">
-                            <div onclick="location.href='asset?symbol=<?= $asset['symbol'] ?>'" style="cursor: pointer;">
+                            <div onclick="location.href='asset?symbol=<?= htmlspecialchars(urlencode($asset['symbol'] ?? '')) ?>'" style="cursor: pointer;">
                                 <div class="card-header">
                                     <i class="fa-solid fa-chart-line"></i>
-                                    <strong><?= $asset['symbol'] ?></strong>
+                                    <strong><?= htmlspecialchars($asset['symbol'] ?? '') ?></strong>
                                 </div>
-                                <p class="price">$<?= number_format($asset['price'], 2) ?></p>
+                                <p class="price">$<?= number_format((float)$asset['price'], 2) ?></p>
                                 <p class="change <?= $asset['change'] >= 0 ? 'positive' : 'negative' ?>">
-                                    <?= $asset['change'] >= 0 ? '+' : '' ?><?= $asset['change'] ?>%
+                                    <?= $asset['change'] >= 0 ? '+' : '' ?><?= (float)$asset['change'] ?>%
                                 </p>
                             </div>
                             <div class="trade-buttons">
-                                <a href="trade?symbol=<?= $asset['symbol'] ?>&type=BUY" class="btn-trade buy">KUP</a>
+                                <a href="trade?symbol=<?= htmlspecialchars(urlencode($asset['symbol'] ?? '')) ?>&type=BUY" class="btn-trade buy">KUP</a>
                                 <?php 
                                     $userHasAsset = false;
                                     if(isset($user_assets)) {
                                         foreach($user_assets as $ua) {
-                                            if($ua['symbol'] == $asset['symbol'] && $ua['amount'] > 0) {
+                                            if($ua['symbol'] == $asset['symbol'] && (float)$ua['amount'] > 0) {
                                                 $userHasAsset = true;
                                                 break;
                                             }
                                         }
                                     }
                                 ?>
-                                <a href="trade?symbol=<?= $asset['symbol'] ?>&type=SELL" 
+                                <a href="trade?symbol=<?= htmlspecialchars(urlencode($asset['symbol'] ?? '')) ?>&type=SELL" 
                                    class="btn-trade sell <?= !$userHasAsset ? 'disabled' : '' ?>">
-                                    SPRZEDAJ
+                                     SPRZEDAJ
                                 </a>
                             </div>
                         </div>

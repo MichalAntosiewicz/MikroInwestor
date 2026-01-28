@@ -14,7 +14,7 @@
     <link href="public/styles/dashboard.css" rel="stylesheet">
     <link href="public/styles/tables.css" rel="stylesheet">
     
-    <title>MikroInwestor | Portfel</title>
+    <title>MikroInwestor | Rynek Aktywów</title>
 </head>
 <body>
     <nav class="main-nav">
@@ -43,7 +43,7 @@
             <div class="market-header">
                 <div class="local-timer">
                     <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i>
-                    Rynek odświeży się za: <span id="timer"><?= $refresh_in ?? 60 ?></span>s
+                    Rynek odświeży się za: <span id="timer"><?= (int)($refresh_in ?? 60) ?></span>s
                 </div>
                 <div style="color: #666; font-size: 0.7rem; letter-spacing: 2px; font-weight: bold;">
                     <i class="fa-solid fa-circle" style="color: #00ff88; font-size: 0.5rem; margin-right: 5px;"></i>
@@ -51,15 +51,9 @@
                 </div>
             </div>
 
-            <div class="portfolio-info-box">
-                <div>
-                    <h1 style="margin: 0; font-size: 1.8rem;">Mój <span style="color: #00d2ff;">Portfel</span></h1>
-                    <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">Zestawienie Twoich udziałów</p>
-                </div>
-                <div style="text-align: right;">
-                    <span style="color: #888; font-size: 0.8rem; text-transform: uppercase;">Wycena pozycji:</span>
-                    <h2 style="margin: 0; color: #00ff88;">$<?= number_format($total_value ?? 0, 2) ?></h2>
-                </div>
+            <div class="market-title-box" style="background: rgba(255, 255, 255, 0.02); padding: 20px 30px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                <h1 style="margin: 0; font-size: 1.8rem;">Eksploruj <span style="color: #00d2ff;">Rynek</span></h1>
+                <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">Wybierz aktywa i zacznij budować swoją historię inwestycyjną.</p>
             </div>
 
             <div class="table-container">
@@ -67,41 +61,36 @@
                     <thead>
                         <tr>
                             <th>Aktywo</th>
-                            <th style="text-align: center;">Ilość</th>
-                            <th style="text-align: center;">Śr. Cena Zakupu</th>
-                            <th style="text-align: center;">Wartość rynkowa</th>
-                            <th style="text-align: center;">ROI (%)</th>
-                            <th style="text-align: right;">Akcja</th>
+                            <th>Cena (USD)</th>
+                            <th style="text-align: center;">Zmiana</th>
+                            <th style="text-align: right;">Handel</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if(isset($user_assets) && !empty($user_assets)): ?>
-                            <?php foreach($user_assets as $item): ?>
+                        <?php if(isset($assets)): ?>
+                            <?php foreach($assets as $asset): ?>
                                 <tr>
                                     <td>
-                                        <div class="symbol-tag">
-                                            <i class="fa-solid fa-circle-dot" style="font-size: 0.6rem;"></i>
-                                            <strong><?= $item['symbol'] ?></strong>
+                                        <div class="symbol-tag" onclick="location.href='asset?symbol=<?= htmlspecialchars(urlencode($asset['symbol'] ?? '')) ?>'" style="cursor:pointer;">
+                                            <i class="fa-solid fa-chart-simple" style="font-size: 0.8rem; color: #444;"></i>
+                                            <strong><?= htmlspecialchars($asset['symbol'] ?? '') ?></strong>
                                         </div>
                                     </td>
-                                    <td style="text-align: center; font-weight: bold;"><?= number_format($item['amount'], 4) ?></td>
-                                    <td style="text-align: center; color: #aaa;">$<?= number_format($item['avg_buy_price'], 2) ?></td>
-                                    <td style="text-align: center; font-weight: bold;">$<?= number_format($item['current_value'], 2) ?></td>
+                                    <td style="font-weight: bold; font-size: 1.1rem;">$<?= number_format($asset['price'], 2) ?></td>
                                     <td style="text-align: center;">
-                                        <span class="status-pill <?= $item['profit_loss'] >= 0 ? 'positive' : 'negative' ?>">
-                                            <i class="fa-solid fa-caret-<?= $item['profit_loss'] >= 0 ? 'up' : 'down' ?>"></i>
-                                            <?= number_format(abs($item['profit_loss']), 2) ?>%
+                                        <span class="status-pill <?= $asset['change'] >= 0 ? 'positive' : 'negative' ?>">
+                                            <i class="fa-solid fa-caret-<?= $asset['change'] >= 0 ? 'up' : 'down' ?>"></i>
+                                            <?= number_format(abs($asset['change']), 2) ?>%
                                         </span>
                                     </td>
                                     <td style="text-align: right;">
-                                        <a href="trade?symbol=<?= $item['symbol'] ?>&type=SELL" class="btn-trade sell" style="padding: 8px 15px; font-size: 0.7rem;">SPRZEDAJ</a>
+                                        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                            <a href="trade?symbol=<?= htmlspecialchars(urlencode($asset['symbol'] ?? '')) ?>&type=BUY" class="btn-trade buy" style="padding: 8px 20px; font-size: 0.75rem;">KUP</a>
+                                            <a href="trade?symbol=<?= htmlspecialchars(urlencode($asset['symbol'] ?? '')) ?>&type=SELL" class="btn-trade sell" style="padding: 8px 20px; font-size: 0.75rem;">SPRZEDAJ</a>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="6" style="text-align: center; padding: 100px; color: #444;">Brak aktywów.</td>
-                            </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -110,7 +99,7 @@
 
         <div class="risk-notice">
             <h3 style="color: #00d2ff; margin-top: 0; font-size: 1.1rem;"><i class="fa-solid fa-shield-halved"></i> Security & Simulation</h3>
-             <p style="font-size: 0.9rem; line-height: 1.6; color: #bbb;">
+            <p style="font-size: 0.9rem; line-height: 1.6; color: #bbb;">
                 Witaj w symulatorze <strong>MikroInwestor</strong>.
             </p>
             <p style="font-size: 0.85rem; line-height: 1.5; color: #888;">

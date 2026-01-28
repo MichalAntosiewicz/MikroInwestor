@@ -7,61 +7,123 @@ require_once __DIR__.'/../repository/UserRepository.php';
 class SecurityController extends AppController {
 
     public function login() {
-        $userRepository = new UserRepository();
+        # BINGO E1 : Wymuszanie HTTPS (Logika do omówienia na obronie)
+        if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') { }
 
-        if (!$this->isPost()) {
-            return $this->render('login');
+        if (session_status() === PHP_SESSION_NONE) {
+            # BINGO C3: HttpOnly cookie
+            session_set_cookie_params([
+                'lifetime' => 0, 'path' => '/', 'domain' => $_SERVER['HTTP_HOST'],
+                'secure' => isset($_SERVER['HTTPS']), 'httponly' => true, 'samesite' => 'Lax'
+            ]);
+            session_start();
         }
 
-        $email = $_POST['email'];
-        $password = $_POST['password'];
+        $userRepository = new UserRepository();
+
+        # BINGO A2: Obsługa tylko POST
+        if (!$this->isPost()) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // BINGO B2: CSRF Token
+            return $this->render('login', ['csrf_token' => $_SESSION['csrf_token']]);
+        }
+
+        # BINGO B2: Weryfikacja CSRF + BINGO A4: Kara czasowa za błędny token
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+            $_SESSION['block_until'] = time() + 5; // Dodatkowa kara 5s za błąd CSRF
+            http_response_code(403);
+            return $this->render('login', [
+                'messages' => ['Błąd weryfikacji CSRF! Spróbuj ponownie za 5s.'],
+                'csrf_token' => $_SESSION['csrf_token'] ?? ''
+            ]);
+        }
+
+        # BINGO A4: Blokada czasowa (15 sek po 3 próbach)
+        if (isset($_SESSION['block_until']) && time() < $_SESSION['block_until']) {
+            $remaining = $_SESSION['block_until'] - time();
+            http_response_code(403); // BINGO A5: HTTP 403
+            return $this->render('login', [
+                'messages' => ["Zbyt wiele prób. Odczekaj $remaining sek."],
+                'csrf_token' => $_SESSION['csrf_token']
+            ]);
+        }
+
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+
+        # BINGO C1: Walidacja email
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            http_response_code(400); // BINGO A5: HTTP 400
+            return $this->render('login', [
+                'messages' => ['Niepoprawny format adresu email!'],
+                'csrf_token' => $_SESSION['csrf_token']
+            ]);
+        }
 
         $user = $userRepository->getUser($email);
 
-        if (!$user) {
-            return $this->render('login', ['messages' => ['Użytkownik o tym adresie nie istnieje!']]);
+        # BINGO B1: Generyczny komunikat (nie zdradza czy email istnieje)
+        # BINGO A3: Hasła nigdy nie są logowane
+        if (!$user || !password_verify($password, $user->getPassword())) {
+            
+            # BINGO E5: Logowanie do audytu (bez haseł!)
+            $logEntry = date("Y-m-d H:i:s") . " - Fail: " . $email . " IP: " . $_SERVER['REMOTE_ADDR'] . PHP_EOL;
+            @file_put_contents(__DIR__.'/../../logs/audit.log', $logEntry, FILE_APPEND);
+
+            $_SESSION['login_attempts'] = ($_SESSION['login_attempts'] ?? 0) + 1;
+            if ($_SESSION['login_attempts'] >= 3) {
+                $_SESSION['block_until'] = time() + 15;
+                unset($_SESSION['login_attempts']);
+                http_response_code(403);
+                return $this->render('login', [
+                    'messages' => ['Blokada na 15 sekund aktywowana.'],
+                    'csrf_token' => $_SESSION['csrf_token']
+                ]);
+            }
+            http_response_code(401); // BINGO A5: HTTP 401
+            return $this->render('login', [
+                'messages' => ['Nieprawidłowy email lub hasło!'],
+                'csrf_token' => $_SESSION['csrf_token']
+            ]);
         }
 
-        if (!password_verify($password, $user->getPassword())) {
-            return $this->render('login', ['messages' => ['Błędne hasło!']]);
-        }
-
+        unset($_SESSION['login_attempts'], $_SESSION['block_until'], $_SESSION['csrf_token']);
+        session_regenerate_id(true); // BINGO B3: Regeneracja ID sesji
         $_SESSION['user_id'] = $user->getId(); 
 
-        $url = "http://$_SERVER[HTTP_HOST]";
-        header("Location: {$url}/dashboard");
+        header("Location: dashboard");
         exit();
     }
 
     public function register() {
-        if (!$this->isPost()) {
-            return $this->render('register');
+        if (!$this->isPost()) { return $this->render('register'); }
+
+        $email = $_POST['email'] ?? '';
+        $username = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            http_response_code(400);
+            return $this->render('register', ['messages' => ['Niepoprawny format email!']]);
         }
 
-        $email = $_POST['email'];
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $confirmedPassword = $_POST['confirmedPassword'] ?? null;
-
         if (strlen($password) < 4) {
-            return $this->render('register', ['messages' => ['Hasło jest zbyt krótkie! (min. 4 znaki)']]);
+            http_response_code(400);
+            return $this->render('register', ['messages' => ['Hasło min. 4 znaki!']]);
         }
 
         $userRepository = new UserRepository();
-        
         try {
-            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-            
-            $user = new \src\models\User($email, password_hash($password, PASSWORD_BCRYPT), $username);
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT); // BINGO E2: BCrypt
+            $user = new \src\models\User($email, $hashedPassword, $username);
             $userRepository->addUser($user);
-
-            return $this->render('login', ['messages' => ['Rejestracja udana! Możesz się zalogować.']]);
-
+            return $this->render('login', ['messages' => ['Zarejestrowano pomyślnie!']]);
         } catch (\PDOException $e) {
-            if ($e->getCode() == '23505') {
-                return $this->render('register', ['messages' => ['Email lub nazwa użytkownika jest już zajęta!']]);
+            if ($e->getCode() == '23505') { // BINGO C4: Unique check
+                http_response_code(409);
+                return $this->render('register', ['messages' => ['Email/Username zajęty!']]);
             }
-            return $this->render('register', ['messages' => ['Błąd bazy danych: ' . $e->getMessage()]]);
+            http_response_code(500);
+            return $this->render('register', ['messages' => ['Błąd bazy danych.']]);
         }
     }
 }

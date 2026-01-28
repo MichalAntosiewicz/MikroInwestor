@@ -10,7 +10,7 @@
     <link href="public/styles/main.css" rel="stylesheet">
     <link href="public/styles/dashboard.css" rel="stylesheet">
     <link href="public/styles/navbar.css" rel="stylesheet">
-    <title>HANDEL | <?= $symbol ?></title>
+    <title>HANDEL | <?= htmlspecialchars($symbol ?? 'Aktywo') ?></title>
 </head>
 <body>
     <nav class="main-nav">
@@ -34,19 +34,19 @@
 
             <?php if (isset($_SESSION['error'])): ?>
                 <div style="background: rgba(255, 68, 68, 0.2); border: 1px solid #ff4444; color: #ff4444; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold;">
-                    <i class="fa-solid fa-circle-exclamation"></i> <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+                    <i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($_SESSION['message'])): ?>
                 <div style="background: rgba(0, 255, 136, 0.2); border: 1px solid #00ff88; color: #00ff88; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold;">
-                    <i class="fa-solid fa-check-circle"></i> <?= $_SESSION['message']; unset($_SESSION['message']); ?>
+                    <i class="fa-solid fa-check-circle"></i> <?= htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?>
                 </div>
             <?php endif; ?>
 
             <h1 style="margin-top: 0; font-size: 1.5rem; color: #fff;">Panel <?= $type === 'BUY' ? 'Zakupu' : 'Sprzedaży' ?></h1>
             <div style="font-size: 2.5rem; color: #00d2ff; margin-bottom: 20px; font-weight: bold;">
-                <?= $symbol ?>
+                <?= htmlspecialchars($symbol ?? '') ?>
             </div>
 
             <div class="trade-info" style="margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
@@ -55,9 +55,11 @@
             </div>
 
             <form action="executeTrade" method="POST">
-                <input type="hidden" name="symbol" value="<?= $symbol ?>">
-                <input type="hidden" name="price" id="price-hidden" value="<?= $price ?>">
-                <input type="hidden" name="type" value="<?= $type ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                
+                <input type="hidden" name="symbol" value="<?= htmlspecialchars($symbol ?? '') ?>">
+                <input type="hidden" name="price" id="price-hidden" value="<?= (float)$price ?>">
+                <input type="hidden" name="type" value="<?= htmlspecialchars($type ?? '') ?>">
 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 10px; color: #888; font-size: 0.9rem;">
@@ -72,7 +74,7 @@
                         id="amount-input" 
                         step="1" 
                         min="0" 
-                        <?php if($type === 'SELL'): ?> max="<?= $owned_amount ?>" <?php endif; ?>
+                        <?php if($type === 'SELL'): ?> max="<?= (float)$owned_amount ?>" <?php endif; ?>
                         value="1"
                         required
                         style="width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 8px; font-size: 1.5rem; font-weight: bold; box-sizing: border-box;"
@@ -105,8 +107,9 @@
         const summaryBox = document.getElementById('summary-box');
         
         const currentPrice = parseFloat(priceHidden.value);
-        const userBalance = <?= $balance ?>;
-        const tradeType = "<?= $type ?>";
+        // BINGO D4: Bezpieczne przekazanie danych liczbowych do JS
+        const userBalance = <?= (float)$balance ?>;
+        const tradeType = <?= json_encode($type) ?>;
 
         const updateTotal = () => {
             const amount = parseFloat(amountInput.value) || 0;

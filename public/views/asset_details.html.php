@@ -12,7 +12,7 @@
     <link href="public/styles/dashboard.css" rel="stylesheet">
     <link href="public/styles/navbar.css" rel="stylesheet">
     
-    <title><?= $symbol ?> | Szczegóły Aktywa</title>
+    <title><?= htmlspecialchars($symbol ?? 'Aktywo') ?> | Szczegóły Aktywa</title>
     <style>
         /* Nadpisanie globalnego grida z dashboard.css, aby wycentrować stronę */
         main {
@@ -29,7 +29,6 @@
             max-width: 900px;
         }
 
-        /* Stylizacja przycisków okresu czasu */
         .chart-controls {
             display: flex;
             gap: 10px;
@@ -57,7 +56,7 @@
         }
 
         .period-btn.active {
-            background: #00d2ff !important; /* Wymuszenie koloru MikroInwestor */
+            background: #00d2ff !important;
             color: #000 !important;
             border-color: #00d2ff !important;
         }
@@ -99,14 +98,14 @@
             <div class="card" style="padding: 35px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
                     <div>
-                        <h1 style="margin: 0; font-size: 3rem; letter-spacing: -1px;"><?= $symbol ?></h1>
+                        <h1 style="margin: 0; font-size: 3rem; letter-spacing: -1px;"><?= htmlspecialchars($symbol ?? '') ?></h1>
                         <p style="color: #888; margin: 5px 0; font-size: 1.1rem;">
-                            Aktualny kurs: <strong style="color: #00ff88;">$<?= number_format($price, 2) ?></strong>
+                            Aktualny kurs: <strong style="color: #00ff88;">$<?= number_format((float)($price ?? 0), 2) ?></strong>
                         </p>
                     </div>
                     <div style="text-align: right;">
                         <p style="margin: 0; color: #888; font-size: 0.9rem; text-transform: uppercase;">W Twoim portfelu</p>
-                        <p style="margin: 0; font-size: 1.8rem; font-weight: bold; color: #00d2ff;"><?= (float)$owned_amount ?> <span style="font-size: 0.9rem;">szt.</span></p>
+                        <p style="margin: 0; font-size: 1.8rem; font-weight: bold; color: #00d2ff;"><?= (float)($owned_amount ?? 0) ?> <span style="font-size: 0.9rem;">szt.</span></p>
                     </div>
                 </div>
 
@@ -128,12 +127,12 @@
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <a href="trade?symbol=<?= $symbol ?>&type=BUY" class="btn-trade buy" style="text-align: center; padding: 20px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 1.2rem;">KUP</a>
+                    <a href="trade?symbol=<?= htmlspecialchars(urlencode($symbol ?? '')) ?>&type=BUY" class="btn-trade buy" style="text-align: center; padding: 20px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 1.2rem;">KUP</a>
                     
-                    <a href="trade?symbol=<?= $symbol ?>&type=SELL" 
-                       class="btn-trade sell <?= $owned_amount <= 0 ? 'disabled' : '' ?>" 
+                    <a href="trade?symbol=<?= htmlspecialchars(urlencode($symbol ?? '')) ?>&type=SELL" 
+                       class="btn-trade sell <?= ($owned_amount ?? 0) <= 0 ? 'disabled' : '' ?>" 
                        style="text-align: center; padding: 20px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">
-                       SPRZEDAJ
+                        SPRZEDAJ
                     </a>
                 </div>
             </div>
@@ -151,7 +150,8 @@
             }
 
             try {
-                const response = await fetch(`assetData?symbol=<?= $symbol ?>&period=${period}`);
+                const symbol = <?= json_encode($symbol ?? '') ?>;
+                const response = await fetch(`assetData?symbol=${encodeURIComponent(symbol)}&period=${encodeURIComponent(period)}`);
                 const chartData = await response.json();
 
                 if (assetChart) {

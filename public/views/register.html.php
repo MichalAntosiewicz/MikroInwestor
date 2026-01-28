@@ -21,11 +21,13 @@
         </div>
 
         <form class="login-form" action="register" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+
             <div class="messages">
                 <?php if(isset($messages)): ?>
                     <?php foreach($messages as $message): ?>
                         <div class="error-badge">
-                            <i class="fa-solid fa-circle-exclamation"></i> <?= $message; ?>
+                            <i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($message); ?>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>

@@ -61,7 +61,7 @@
                                 <td>
                                     <div class="symbol-tag">
                                         <i class="fa-solid fa-receipt" style="font-size: 0.8rem; color: #444;"></i>
-                                        <strong><?= $t['symbol'] ?></strong>
+                                        <strong><?= htmlspecialchars($t['symbol'] ?? '') ?></strong>
                                     </div>
                                 </td>
                                 <td style="text-align: center;">
@@ -69,10 +69,10 @@
                                         <?= $t['type'] === 'BUY' ? 'KUPNO' : 'SPRZEDAŻ' ?>
                                     </span>
                                 </td>
-                                <td style="text-align: center; font-weight: 500;"><?= number_format($t['amount'], 4) ?></td>
-                                <td style="text-align: center; color: #aaa;">$<?= number_format($t['price_per_unit'] ?? 0, 2) ?></td>
+                                <td style="text-align: center; font-weight: 500;"><?= number_format((float)$t['amount'], 4) ?></td>
+                                <td style="text-align: center; color: #aaa;">$<?= number_format((float)($t['price_per_unit'] ?? 0), 2) ?></td>
                                 <td style="text-align: right; font-weight: bold; color: #00d2ff;">
-                                    $<?= number_format(($t['amount'] * ($t['price_per_unit'] ?? 0)), 2) ?>
+                                    $<?= number_format(((float)$t['amount'] * (float)($t['price_per_unit'] ?? 0)), 2) ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

@@ -19,11 +19,13 @@
         </div>
 
         <form class="login-form" action="login" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+
             <div class="messages">
                 <?php if(isset($messages)): ?>
                     <?php foreach($messages as $message): ?>
                         <div class="error-badge">
-                            <i class="fa-solid fa-circle-exclamation"></i> <?= $message; ?>
+                            <i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($message); ?>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
