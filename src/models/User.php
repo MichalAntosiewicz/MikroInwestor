@@ -39,4 +39,8 @@ class User {
     public function isAdmin(): bool {
         return $this->role === 'admin';
     }
+
+    public function setMarketMode(string $marketMode) {
+        $this->marketMode = $marketMode;
+    }
 }

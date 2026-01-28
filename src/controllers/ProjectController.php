@@ -4,6 +4,7 @@ require_once 'AppController.php';
 require_once __DIR__.'/../factories/MarketProviderFactory.php';
 require_once __DIR__.'/../repository/UserRepository.php';
 require_once __DIR__.'/../repository/TradeRepository.php';
+require_once __DIR__.'/../repository/PortfolioRepository.php';
 
 class ProjectController extends AppController {
 
@@ -93,23 +94,36 @@ class ProjectController extends AppController {
         $total_portfolio_value = 0;
 
         foreach ($raw_assets as $asset) {
-            $symbol = $asset['symbol'];
+            $symbol = strtoupper(trim($asset['symbol'])); // Standaryzacja symbolu
             $amount = (float)$asset['amount'];
             $avgPrice = (float)$asset['avg_buy_price'];
 
-            $currentMarketPrice = 0;
+            // KLUCZ: Resetujemy cenę rynkową dla każdego aktywa z osobna!
+            $currentMarketPrice = 0; 
+
             foreach ($marketData as $m) {
-                if ($m['symbol'] === $symbol) {
+                // Porównujemy symbole ignorując wielkość liter i spacje
+                if (strtoupper(trim($m['symbol'])) === $symbol) {
                     $currentMarketPrice = (float)$m['price'];
                     break;
                 }
             }
 
-            $currentValue = $amount * $currentMarketPrice;
+            // Jeśli cena rynkowa nadal wynosi 0 (nie znaleziono w marketData), 
+            // ROI nie powinno być liczone
+            if ($currentMarketPrice <= 0) {
+                $currentValue = $amount * $avgPrice; // fallback do ceny zakupu
+                $profitLoss = 0;
+            } else {
+                $currentValue = $amount * $currentMarketPrice;
+                // Oblicz ROI
+                $profitLoss = (($currentMarketPrice - $avgPrice) / $avgPrice) * 100;
+                
+                // Zaokrąglenie do 2 miejsc dla pewności w widoku
+                $profitLoss = round($profitLoss, 2);
+            }
+
             $total_portfolio_value += $currentValue;
-            
-            // Oblicz ROI: ((Cena rynkowa - Cena zakupu) / Cena zakupu) * 100
-            $profitLoss = ($avgPrice > 0) ? (($currentMarketPrice - $avgPrice) / $avgPrice) * 100 : 0;
 
             $user_assets[] = [
                 'symbol' => $symbol,
@@ -119,6 +133,7 @@ class ProjectController extends AppController {
                 'profit_loss' => $profitLoss
             ];
         }
+        
 
         $this->render('portfolio', [
             'user' => $user,
@@ -129,12 +144,76 @@ class ProjectController extends AppController {
     }
 
     public function admin_panel() {
-        $user = $this->verifyAdmin(); // BINGO: Weryfikacja uprawnień w trakcie działania
+        $user = $this->verifyAdmin();
 
         $this->render('admin_panel', [
             'users' => $this->userRepository->getAllUsers(),
             'user' => $user
         ]);
+    }
+
+    public function asset() {
+        $user = $this->getLoggedInUser();
+        if (!$user) { header("Location: login"); exit(); }
+
+        $symbol = $_GET['symbol'] ?? null;
+        if (!$symbol) { header("Location: market"); exit(); }
+
+        $marketData = $this->marketService->getMarketData();
+        $price = 0;
+        foreach ($marketData as $asset) {
+            if ($asset['symbol'] === $symbol) {
+                $price = $asset['price'];
+                break;
+            }
+        }
+
+        $portfolioRepo = new PortfolioRepository();
+        $userPortfolio = $portfolioRepo->getUserPortfolio($user->getId());
+        $ownedAmount = 0;
+        foreach ($userPortfolio as $item) {
+            if ($item['symbol'] === $symbol) {
+                $ownedAmount = $item['amount'];
+                break;
+            }
+        }
+
+        $this->render('asset_details', [
+            'user' => $user,
+            'symbol' => $symbol,
+            'price' => $price,
+            'owned_amount' => $ownedAmount,
+            'balance' => $user->getBalance()
+        ]);
+    }
+
+    public function assetData() {
+        $symbol = $_GET['symbol'] ?? '';
+        $period = $_GET['period'] ?? '1M';
+
+        $rawHistory = $this->marketService->getHistory($symbol, $period);
+        
+        $labels = [];
+        $values = [];
+
+        if (isset($rawHistory['c']) && isset($rawHistory['t'])) {
+            foreach ($rawHistory['t'] as $index => $timestamp) {
+                $format = match($period) {
+                    '1D' => 'H:i',
+                    '1Y', '5Y' => 'm.Y',
+                    default => 'd.m'
+                };
+                $labels[] = date($format, $timestamp);
+                $values[] = $rawHistory['c'][$index];
+            }
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            'labels' => $labels,
+            'values' => $values
+        ]);
+        exit();
     }
 
     public function deleteUser() {

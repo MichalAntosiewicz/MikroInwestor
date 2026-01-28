@@ -15,6 +15,7 @@ Routing::get('register', 'SecurityController');
 Routing::post('register', 'SecurityController');
 
 
+
 Routing::get('dashboard', 'ProjectController');
 Routing::get('market', 'ProjectController');
 Routing::get('history', 'ProjectController');

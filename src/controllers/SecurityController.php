@@ -116,6 +116,8 @@ class SecurityController extends AppController {
         $email = $_POST['email'] ?? '';
         $username = $_POST['username'] ?? '';
         $password = $_POST['password'] ?? '';
+        // FIX: Pobieramy tryb rynku z formularza
+        $marketMode = $_POST['market_mode'] ?? 'simulated';
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             http_response_code(400);
@@ -132,11 +134,13 @@ class SecurityController extends AppController {
             # BINGO E2: BCrypt - Hashujemy przed stworzeniem obiektu
             $hashedPassword = password_hash($password, PASSWORD_BCRYPT); 
             
-            # FIX: Zgodność z konstruktorem User(email, password, username, role, balance)
-            # Podajemy 151401 jako startowy balance (wymóg z albumem)
+            # BINGO A1: Personalizacja trybu rynku (Real/Simulated)
+            # FIX: Przekazujemy $marketMode do obiektu User
             $user = new User($email, $hashedPassword, $username, 'user', 151401.0);
+            $user->setMarketMode($marketMode);
             
             $userRepository->addUser($user);
+            
             return $this->render('login', [
                 'messages' => ['Zarejestrowano pomyślnie! Zaloguj się.'],
                 'csrf_token' => $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32))

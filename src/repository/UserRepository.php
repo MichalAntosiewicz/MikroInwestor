@@ -55,16 +55,17 @@ class UserRepository extends Repository {
 
     public function addUser(User $user) {
         $stmt = $this->database->getConnection()->prepare('
-            INSERT INTO public.users (username, email, password, balance, market_mode)
-            VALUES (:u, :e, :p, :b, :m)
+            INSERT INTO public.users (username, email, password, role, balance, market_mode)
+            VALUES (?, ?, ?, ?, ?, ?)
         ');
 
         $stmt->execute([
-            'u' => $user->getUsername(),
-            'e' => $user->getEmail(),
-            'p' => $user->getPassword(),
-            'b' => 151401, // Twoja kwota startowa
-            'm' => 'simulated'
+            $user->getUsername(),
+            $user->getEmail(),
+            $user->getPassword(),
+            $user->getRole(),
+            $user->getBalance(),
+            $user->getMarketMode() // Upewnij się, że obiekt User ma tę metodę
         ]);
     }
 
